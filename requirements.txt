@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard]
+networkx
+pandas
+pydantic
+python-louvain

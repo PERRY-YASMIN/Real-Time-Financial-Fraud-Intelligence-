@@ -1,0 +1,174 @@
+{
+  "contract_name": "Person 1 -> Person 2 Integration Contract",
+  "project": "HNX26PSI04 Real-Time Financial Fraud Intelligence",
+  "version": "1.0.0",
+  "status": "FROZEN_STAGE_9_1",
+  "date": "2026-10-07",
+  "owner_person_1": "ML / Explainability / Temporal Intelligence",
+  "owner_person_2": "Graph Intelligence / Risk Engine / Backend / Replay",
+  "frozen_constants": {
+    "xgboost_version": "3.4.1",
+    "feature_count": 182,
+    "model_path": "models/xgboost_baseline.json",
+    "metadata_path": "models/xgboost_baseline_metadata.json",
+    "operating_threshold": 0.69,
+    "scale_pos_weight": 8.108,
+    "random_state": 42,
+    "temporal_mode": "OPTION B (Sequentially causal after current-timestep completion)",
+    "temporal_window_size": 3,
+    "temporal_sensitivity": 0.4,
+    "replay_file": "data/processed/replay_transactions.csv",
+    "final_test_holdout_status": "UNTOUCHED"
+  },
+  "fields": {
+    "implemented_ml_inference_fields": [
+      {
+        "name": "txId",
+        "type": "Union[int, str, None]",
+        "source": "backend/ml/inference.py",
+        "latency": "zero-latency (immediate)",
+        "description": "Transaction unique identifier"
+      },
+      {
+        "name": "ml_score",
+        "type": "float",
+        "range": "[0.0, 1.0]",
+        "source": "backend/ml/inference.py",
+        "latency": "zero-latency (immediate)",
+        "description": "Supervised fraud risk probability from frozen 182-feature XGBoost model"
+      },
+      {
+        "name": "predicted_class",
+        "type": "str",
+        "allowed_values": ["ILLICIT", "LICIT"],
+        "source": "backend/ml/inference.py",
+        "latency": "zero-latency (immediate)",
+        "description": "Binary fraud decision flagging whether ml_score >= threshold (0.69)"
+      },
+      {
+        "name": "threshold",
+        "type": "float",
+        "constant_value": 0.69,
+        "source": "backend/ml/inference.py",
+        "latency": "zero-latency (immediate)",
+        "description": "Frozen validation operating decision threshold"
+      }
+    ],
+    "implemented_temporal_fields": [
+      {
+        "name": "time_step",
+        "type": "int",
+        "range": "[1, 49]",
+        "source": "backend/ml/temporal.py",
+        "latency": "immediate input",
+        "description": "Discrete observation window identifier"
+      },
+      {
+        "name": "temporal_score",
+        "type": "float",
+        "range": "[0.0, 1.0]",
+        "source": "backend/ml/temporal.py",
+        "latency": "timestep-finalized (requires completed timestep count N_t)",
+        "description": "Unsupervised rolling volume anomaly score squashed via tanh(0.4 * max(0, z))"
+      },
+      {
+        "name": "temporal_reasons",
+        "type": "List[str]",
+        "source": "backend/ml/temporal.py",
+        "latency": "timestep-finalized",
+        "description": "Deterministic diagnostic explanations of network velocity"
+      },
+      {
+        "name": "velocity_zscore",
+        "type": "float",
+        "source": "backend/ml/temporal.py",
+        "latency": "timestep-finalized",
+        "description": "Normalized velocity deviation relative to rolling 3-timestep baseline"
+      },
+      {
+        "name": "is_cold_start",
+        "type": "bool",
+        "source": "backend/ml/temporal.py",
+        "latency": "immediate / timestep-finalized",
+        "description": "Indicates whether timestep <= 3 lacks sufficient historical context"
+      }
+    ],
+    "derived_integration_fields": [
+      {
+        "name": "risk_factors",
+        "type": "List[Dict[str, Any]]",
+        "source": "models/shap_feature_importance.csv (offline artifact)",
+        "latency": "derived during enrichment",
+        "description": "Top-K influential features driving prediction; requires integration layer mapping by Person 2"
+      }
+    ],
+    "person_2_owned_fields": [
+      {
+        "name": "graph_score",
+        "type": "float",
+        "owner": "Person 2",
+        "description": "Structural topology and network proximity risk score derived from edgelist"
+      },
+      {
+        "name": "graph_reasons",
+        "type": "List[str]",
+        "owner": "Person 2",
+        "description": "Graph topology insights such as mixer adjacency, cycle patterns, fan-in/fan-out"
+      },
+      {
+        "name": "entity_id",
+        "type": "Optional[str]",
+        "owner": "Person 2",
+        "description": "Cluster or address entity identified by Person 2 graph layer"
+      },
+      {
+        "name": "system_risk_score",
+        "type": "float",
+        "owner": "Person 2",
+        "description": "Composite fusion of ml_score, temporal_score, and graph_score"
+      },
+      {
+        "name": "system_alert_level",
+        "type": "str",
+        "owner": "Person 2",
+        "description": "Final operational alerting classification (e.g., LOW, MEDIUM, HIGH, CRITICAL)"
+      }
+    ]
+  },
+  "schema_example": {
+    "person1": {
+      "txId": 230425980,
+      "time_step": 32,
+      "ml_score": 0.94218,
+      "predicted_class": "ILLICIT",
+      "threshold": 0.69,
+      "temporal_score": 0.5055,
+      "temporal_reasons": [
+        "Elevated transaction velocity relative to recent historical baseline"
+      ],
+      "velocity_zscore": 1.4018,
+      "is_cold_start": false,
+      "risk_factors": [
+        {
+          "feature": "size",
+          "direction": "negative",
+          "importance": 0.7615
+        },
+        {
+          "feature": "Local_feature_53",
+          "direction": "negative",
+          "importance": 0.682
+        }
+      ]
+    },
+    "person2": {
+      "graph_score": 0.78,
+      "graph_reasons": [
+        "Direct fan-in flow from flagged mixer cluster"
+      ],
+      "entity_id": "cluster_9812",
+      "system_risk_score": 0.895,
+      "system_alert_level": "CRITICAL"
+    }
+  }
+}

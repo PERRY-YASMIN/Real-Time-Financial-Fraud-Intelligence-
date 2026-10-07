@@ -1,0 +1,63 @@
+{
+  "timestamp": "2026-10-07T08:09:09.750457+00:00",
+  "stage": "STAGE 8 \u2014 FROZEN ML INFERENCE PIPELINE",
+  "environment": {
+    "python_version": "3.12.10",
+    "xgboost_version": "3.4.1",
+    "model_path": "models/xgboost_baseline.json",
+    "metadata_path": "models/xgboost_baseline_metadata.json"
+  },
+  "model_verification": {
+    "feature_count": 182,
+    "exact_feature_order_match": true,
+    "operating_threshold": 0.69,
+    "model_frozen": true,
+    "retrained": false
+  },
+  "preprocessing_verification": {
+    "frozen_imputation_source": "data/processed/preprocessing_metadata.json (train-derived medians)",
+    "imputation_strategy": "train_only_median_imputation",
+    "imputed_features_count": 17,
+    "refitting_occurred": false,
+    "new_features_created": false,
+    "total_model_features": 182
+  },
+  "prediction_equivalence": {
+    "sample_100_evaluation": {
+      "sample_size": 100,
+      "maximum_probability_difference": 0.0,
+      "mean_probability_difference": 0.0,
+      "class_agreement_count": 100,
+      "class_disagreement_count": 0,
+      "tolerance_met": true
+    },
+    "full_validation_evaluation": {
+      "sample_size": 2989,
+      "maximum_probability_difference": 0.0,
+      "mean_probability_difference": 0.0,
+      "class_agreement_count": 2989,
+      "class_disagreement_count": 0,
+      "tolerance_met": true
+    }
+  },
+  "schema_checks": {
+    "missing_features": 0,
+    "unexpected_features": 0,
+    "order_match": true,
+    "nan_count": 0,
+    "infinity_count": 0,
+    "metadata_excluded_from_model": {
+      "txId_excluded": true,
+      "time_step_excluded": true,
+      "label_excluded": true
+    }
+  },
+  "unit_tests": {
+    "test_suite": "tests/test_ml_inference.py",
+    "tests_passed": 12,
+    "tests_failed": 0,
+    "status": "PASS"
+  },
+  "final_status": "PASS",
+  "final_test_used": false
+}
