@@ -1,614 +1,511 @@
 # TRACE: Threat Reconstruction and Attack Chain Evidence
-**System Specification & Product Architecture**  
+**Product & System Specification**  
 **Problem Statement:** HNX26PSI03 — AI-Powered Cyber Threat Intelligence  
 **Institution:** Karunya Institute of Technology and Sciences — Internal Qualifier Hackathon  
 **Target Delivery Window:** 24 Hours  
 
-> **Core Tagline:** *"Don't just detect the attack. Reconstruct the story."*
+> **Core Product Vision:**  
+> *"Don't just detect the attack. Reconstruct the story."*
 
 ---
 
 ## 1. Product Overview
 
-Traditional Security Information and Event Management (SIEM) systems and Intrusion Detection Systems (IDS) overwhelm security analysts with disconnected, atomic alerts. A single user experiencing a typo in a password, a legitimate administrator running a maintenance script, and an active attacker conducting lateral movement are frequently treated with identical alert volume. The core failure of current security tooling is not a failure of *detection*; it is a failure of *reconstruction*.
+Traditional security tools flood security analysts with disconnected, individual alerts. An isolated failed login, an unfamiliar device connection, or an elevated command are often flagged independently. Analysts are left to manually stitch these clues together across massive volumes of telemetry to understand what actually occurred.
 
-**TRACE (Threat Reconstruction and Attack Chain Evidence)** is an AI-powered attack investigation system that ingests fragmented security logs across distributed enterprise entities, links them into a unified knowledge graph, filters benign background noise, and reconstructs the end-to-end multi-stage attack story with strict, verifiable mathematical proof for every stage.
+**TRACE (Threat Reconstruction and Attack Chain Evidence)** is an AI-powered attack investigation system that ingests fragmented security logs across distributed enterprise entities, links them into a connected knowledge graph, filters out routine benign background noise, and reconstructs the full multi-stage attack story.
 
-### The TRACE Paradigm
-```
-RAW SECURITY LOGS
-  ↓ (1) Ingestion & Schema Normalization
-NORMALIZED EVENTS
-  ↓ (2) Entity Graph Construction (Users, Devices, IPs, Processes, Files)
-ENTITY RELATIONSHIP GRAPH
-  ↓ (3) Anomaly Scoring & Behavioral Heuristics
-SUSPICIOUS EVENT CANDIDATES
-  ↓ (4) Temporal & Entity-Binding Correlation Engine
-MULTI-STAGE ATTACK CHAIN
-  ↓ (5) Cryptographic / Deterministic Evidence Verification
-VERIFIED ATTACK STAGES
-  ↓ (6) Explainable Risk Scoring & Earliest Intervention Analysis
-ACTIONABLE INTELLIGENCE (Timeline + Graph + Intervention Playbook)
-```
+TRACE does not treat security events in isolation. Instead, it traces how an adversary moves from initial entry to ultimate impact across:
+- **Users**
+- **Devices**
+- **IP addresses**
+- **Applications and processes**
+- **Files and resources**
 
-TRACE operates on a **hybrid, deterministic-first architecture**. It does not rely on Large Language Models to hallucinate security conclusions or invent attack evidence. Instead, graph analytics, entity continuity, and temporal sequencing form the bedrock of the reasoning engine, ensuring that every displayed attack stage is backed by immutable raw log evidence.
+Crucially, TRACE operates on an **evidence-first, deterministic foundation**. It avoids relying on generative language models to guess or hallucinate attack conclusions. Every attack stage surfaced by TRACE is backed by verifiable, inspectable raw event records.
 
 ---
 
 ## 2. Problem Statement Alignment (HNX26PSI03)
 
-The following matrix maps every requirement and judging criterion of problem statement **HNX26PSI03** directly to TRACE's architecture:
+The following matrix maps the mandatory requirements and evaluation criteria of **HNX26PSI03** directly to TRACE's system architecture:
 
-| Problem Statement Requirement | How TRACE Satisfies It | Architectural Component | Verification / Demo Gate |
-|---|---|---|---|
-| **Connect security events across Users** | Maps user identities (`j.doe`) across authentication, process creation, and file access events. Deduplicates identities across domains. | `engine/entity_linker.py` | Graph node `USER:j.doe` connects login, host, and file activity. |
-| **Connect security events across Devices** | Correlates machine hostnames (`srv-finance-01`), MAC fingerprints, and workstation endpoints. | `engine/entity_linker.py` | Graph node `DEVICE:srv-finance-01` links incoming connections to spawned processes. |
-| **Connect security events across IP Addresses** | Binds external IP addresses (`198.51.100.42`), internal subnets (`10.0.4.12`), and exfiltration endpoints (`203.0.113.88`). | `engine/entity_linker.py` | Directed edges `IP -> LOGGED_IN_FROM -> USER` and `DEVICE -> CONNECTED_TO -> IP`. |
-| **Connect security events across Applications/Processes** | Tracks process execution trees (`powershell.exe`, `sudo`, `curl`) and their spawning parents. | `engine/graph_builder.py` | Process nodes linked to user session and target file descriptors. |
-| **Reconstruct what an attacker did, step by step** | Reconstructs fragmented logs into an ordered 5-stage attack chain based on temporal progression and entity binding. | `engine/chain_correlator.py` | Interactive timeline displaying stages in chronological order. |
-| **Output: Attack Timeline** | Chronological timeline component sorting events from Initial Access to Exfiltration. | `frontend/src/components/TimelineView.jsx` | Visual timeline with timestamps, stage badges, and duration metrics. |
-| **Output: People / Entities Involved** | Extracts all affected users, compromised endpoints, pivot servers, and external threat IPs. | `shared/schemas/responses.py` (`AnalysisResponse.entities`) | Threat summary cards displaying affected users, hosts, and IPs. |
-| **Output: Attack Stages** | Maps raw telemetry into discrete kill-chain phases: Initial Access, Session Migration, Privilege Escalation, Collection, Exfiltration. | `engine/chain_correlator.py` | Visual stage badges with clear progression indicators. |
-| **Output: Proof / Evidence for Every Stage** | Every stage references exact raw event IDs. Clicking a stage displays the raw log text and field provenance. Rejects unsupported claims. | `engine/evidence_verifier.py` | Deep-inspection Evidence Drawer showing raw JSON strings and hash signatures. |
-| **Output: Risk Level** | Calculates deterministic, mathematical risk scores (0–100) based on stage severity, asset criticality, and evidence density. | `engine/risk_scorer.py` | Explainable Risk Gauge with mathematical factor breakdown. |
-| **Output: Recommended Action** | Produces concrete, context-specific containment steps (e.g., revoke session token, isolate host, block IP). | `engine/intervention_finder.py` | Recommended Action panel with executable containment commands. |
-| **False-Positive Control / Stay Quiet on Benign Logs** | Implements multi-stage thresholding and entity-binding requirements. Isolated failed logins or regular admin tasks do not trigger an attack alarm. | `detection/filter.py` | Ingesting 500 benign logs produces **0** attack alerts and a calm green dashboard. |
-| **Accurate Timeline & Temporal Ordering** | Enforces $t_1 \le t_2 \le \dots \le t_n$ constraint. Out-of-order logs are rejected or properly ordered via sliding time windows. | `engine/chain_correlator.py` | Strict monotonically increasing timestamp display on all stages. |
-| **Explain why it believes something is an attack** | Generates an explainable narrative story explaining the entity links and causal progression between stages. | `engine/story_generator.py` | Incident Narrative panel explaining *why* the sequence forms a coordinated attack. |
+| Problem Statement Requirement | How TRACE Satisfies It | Implementation Component |
+|---|---|---|
+| **Connect events across Users** | Tracks user accounts across authentication, host sessions, and resource accesses. Links identities across disparate log sources. | `engine/entity_linker.py` |
+| **Connect events across Devices** | Binds endpoint hostnames, machine IDs, and servers into the shared entity graph. | `engine/entity_linker.py` |
+| **Connect events across IP Addresses** | Correlates internal IP addresses, external ingress IPs, and egress destinations. | `engine/entity_linker.py` |
+| **Connect events across Applications/Processes** | Maps process execution hierarchies, command-line activity, and client applications. | `engine/graph_builder.py` |
+| **Reconstruct attacker actions step-by-step** | Groups temporally correlated events into sequential kill-chain stages. | `engine/chain_correlator.py` |
+| **Output: Attack Timeline** | Renders a chronological timeline showing how the attack developed over time. | `frontend/src/components/TimelineView.jsx` |
+| **Output: People / Entities Involved** | Identifies compromised users, involved hosts, malicious IPs, and accessed sensitive assets. | `shared/schemas/responses.py` |
+| **Output: Attack Stages** | Organizes related events into structured stages (e.g., Initial Access, Execution, Escalation, Collection, Exfiltration). | `engine/chain_correlator.py` |
+| **Output: Proof / Evidence for Every Stage** | Every stage references concrete raw event IDs. Clicking a stage displays the raw log records. Rejects unsubstantiated claims. | `engine/evidence_verifier.py` |
+| **Output: Risk Level** | Calculates explainable risk scores based on stage severity, asset criticality, and evidence density. | `engine/risk_scorer.py` |
+| **Output: Recommended Action** | Provides actionable containment and remediation advice tailored to the observed attack path. | `engine/intervention_finder.py` |
+| **False-Positive Control / Stay quiet on benign logs** | Requires multi-stage correlation and entity continuity before declaring an attack. Suppresses isolated benign anomalies. | `detection/filter.py` |
+| **Timeline Accuracy** | Enforces temporal ordering ($t_1 \le t_2 \le \dots \le t_n$) within configurable correlation time windows. | `engine/chain_correlator.py` |
+| **Explain why it is an attack** | Generates an explainable narrative linking entity transitions and causal steps. | `engine/story_generator.py` |
 
 ---
 
-## 3. Minimum Required Product (PS-Core) vs. USP Differentiators
+## 3. Minimum PS-Compliant Product vs. What Makes TRACE Different
 
-To maintain strict hackathon discipline, we separate what is strictly mandated by the problem statement from what we build to win the competition:
+To maintain crystal-clear focus during a 24-hour build, we strictly distinguish between the **mandatory baseline** required to solve the problem statement and our **additional differentiators**:
 
-```mermaid
-graph TD
-    subgraph PS_MANDATORY["Mandatory Problem Statement Core"]
-        A[Raw Security Logs] --> B[Event Normalization]
-        B --> C[Entity Linking: User, Device, IP, App]
-        C --> D[Suspicious Event Detection]
-        D --> E[Multi-Event Temporal Correlation]
-        E --> F[Attack Chain Reconstruction]
-        F --> G[Evidence-Backed Stages]
-        G --> H[Timeline & Risk & Recommended Action]
-        H --> I[Quiet on Benign Logs]
-    end
-
-    subgraph TRACE_USP["TRACE Unique Selling Propositions"]
-        J[USP 1: Attack Story & Step-by-Step Replay]
-        K[USP 2: Evidence-First Attack Graph with Zero Ghost Edges]
-        L[USP 3: Interpretable Stage Evidence & Confidence Breakdown]
-        M[USP 4: Earliest Intervention Point Analysis]
-    end
-
-    F -.-> J
-    C -.-> K
-    G -.-> L
-    H -.-> M
+```
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        A. MANDATORY PROBLEM STATEMENT CORE                             │
+│                                                                                        │
+│   Raw Security Logs                                                                    │
+│     └──► Normalization into common schema                                              │
+│            └──► Entity Linking (User, Device, IP, App)                                 │
+│                   └──► Suspicious / Anomalous Event Detection                          │
+│                          └──► Multi-Event Temporal Correlation                         │
+│                                 └──► Attack Chain Reconstruction                       │
+│                                        └──► Evidence Binding for every Stage           │
+│                                               └──► Timeline + Risk + Recommended Action│
+│                                                      └──► Quiet on Benign Logs         │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+                                           │
+                                           ▼
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│                        B. WHAT MAKES TRACE DIFFERENT (OUR USPs)                        │
+│                                                                                        │
+│   1. Attack Story & Interactive Replay: Step-by-step playback of how attack unfolded   │
+│   2. Evidence-First Attack Graph: Interactive visual graph with zero ghost edges       │
+│   3. Stage-Level Evidence & Confidence: Explainable arithmetic, not black-box scores   │
+│   4. Earliest Intervention Point: Algorithmic identification of optimal cutoff point   │
+│   5. Deep-Inspection Evidence Drawer: Immediate raw log provenance verification        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Mandatory PS Core Deliverables
-1. Heterogeneous log ingestion and normalization into a standard format.
-2. Linking of Users, Devices, IPs, and Applications.
-3. Chronological multi-stage attack chain reconstruction.
-4. Proof/evidence binding for every single stage.
-5. Deterministic risk calculation.
-6. Actionable remediation advice.
-7. Zero false alarms on benign log traffic.
-
-### TRACE Differentiators (Our USPs)
-1. **Interactive Attack Replay:** A temporal playback controller that lets judges step through the attack as it unfolded in time.
-2. **Evidence-First Attack Graph:** An interactive NetworkX/Cytoscape graph where every node and edge binds to verified log IDs, with zero invented relationships.
-3. **Interpretable Confidence Scoring:** A transparent mathematical formulation showing why the system is confident in its conclusions.
-4. **Earliest Intervention Point (EIP):** An algorithmic identification of the exact inflection point in the kill chain where containment stops the breach before damage occurs.
+The minimum PS core represents the pass/fail baseline for the hackathon. Our USPs elevate the project from a standard detection script to an intuitive, analyst-grade investigation platform.
 
 ---
 
-## 4. In-Depth USP Specification
+## 4. What Makes TRACE Different (Our Core USPs)
 
-### USP 1: Chronological Attack Story & Step-by-Step Replay
-* **What It Does:** Instead of displaying a static, overwhelming post-incident report, TRACE reconstructs the incident as an unfolding temporal narrative. An interactive playback controller allows the analyst or judge to press "Play", "Pause", or "Step Forward" to watch the attack materialize chronologically.
-* **Why It Matters:** Evaluators can immediately grasp how separate benign-looking events coalesced into an attack. It demonstrates mastery over temporal causality and event correlation.
-* **What the Evaluator Sees:**
-  - A playback bar with time markers.
-  - As the replay advances, the Attack Timeline cards light up one by one.
-  - The Entity Graph animates in real-time: nodes appear, edges connect, and compromised nodes pulse red as the attacker advances.
-  - The narrative updates dynamically: *"09:14 — Initial Access established via novel IP..."*
-* **Technical Component Enabling It:** `frontend/src/components/AttackReplayControls.jsx` coupled with `engine/story_generator.py`.
-* **How It Improves Judging Criteria:** Directly satisfies "Can the system link separate events in the correct order?" and "Is the timeline accurate?" in a memorable visual format.
-* **Fallback If Unavailable:** Fall back to a tabbed view with "Previous Stage" and "Next Stage" buttons stepping through pre-computed timeline indices.
+### USP 1: Attack Story / Step-by-Step Attack Replay
+* **What It Does:** Instead of presenting a static alert or a wall of security text, TRACE presents the incident as an unfolding chronological story. An interactive playback controller allows evaluators to step forward and backward through time.
+* **Why It Matters:** In real security investigations, sequence matters. Evaluators can watch separate, seemingly innocuous events converge into a high-severity incident.
+* **Evaluator Experience:** The evaluator clicks "Play" or steps forward:
+  - The timeline highlights each stage in chronological sequence.
+  - The attack graph animates, drawing new entities and edges as the adversary advances.
+  - An accompanying narrative summarizes what just occurred: *"At 09:14, an unusual login was observed... 2 minutes later, a session attached from an unrecognised device..."*
+* **Fallback If Needed:** If animation or playback state becomes difficult in frontend development, fall back to a simple tabbed or stepped stepper control (`[Previous Stage]`, `[Next Stage]`).
 
 ---
 
-### USP 2: Evidence-First Attack Graph (Zero Ghost Edges)
-* **What It Does:** Visualizes the entire attack surface as a directed graph where every node represents a real entity (`User`, `Device`, `IP`, `Process`, `File`) and every edge represents an observed, logged interaction (`LOGGED_IN_FROM`, `USED_DEVICE`, `SPAWNED_PROCESS`, `ACCESSED_FILE`, `CONNECTED_TO`).
-* **Why It Matters:** Most graph demos display pre-canned, decorative network topologies with fictitious links. TRACE enforces a strict invariant: **A relationship edge cannot exist in the graph unless it holds $\ge 1$ supporting raw event ID.**
-* **What the Evaluator Sees:**
-  - An interactive canvas with color-coded nodes and directed arrows.
-  - Clicking any edge opens the Evidence Drawer, displaying the exact timestamp, event ID, and raw syslog/JSON record that generated that edge.
-  - Clear visual demarcation between the attacker's path (highlighted in red) and peripheral benign context (rendered in muted slate).
-* **Technical Component Enabling It:** `engine/graph_builder.py` using NetworkX for in-memory graph operations, serialized via `AttackGraphDTO` to Cytoscape.js.
-* **How It Improves Judging Criteria:** Conclusively satisfies "Can it correctly connect users, devices, IPs, and applications?" and "Every attack stage must have proof."
-* **Fallback If Unavailable:** Fall back to a structured SVG node-link tree or an HTML table showing parent-child entity bindings.
+### USP 2: Evidence-First Attack Graph
+* **What It Does:** Renders the attack as a directed entity graph where nodes represent real entities (`User`, `Device`, `IP`, `Process`, `File`) and edges represent observed interactions (`LOGGED_IN_FROM`, `USED_DEVICE`, `SPAWNED`, `ACCESSED`, `CONNECTED_TO`).
+* **Why It Matters:** Most graph visualizers display arbitrary or decorative topologies. TRACE enforces a strict invariant: **Every single edge must hold one or more real event IDs as its backing evidence.**
+* **Evaluator Experience:** The evaluator clicks on any node or edge in the graph:
+  - An Evidence Drawer slides open.
+  - The exact raw log entries that formed that edge are displayed with highlighted fields.
+  - The evaluator sees that no connection was invented out of thin air.
+* **Fallback If Needed:** If complex graph canvas libraries (e.g., Cytoscape) encounter styling or layout challenges, fall back to an interactive SVG node-link view or structured entity relationship cards.
 
 ---
 
-### USP 3: Interpretable Stage Evidence & Confidence Breakdown
-* **What It Does:** For every stage in the attack chain, TRACE provides an explainable confidence and risk breakdown rather than an arbitrary black-box score.
-* **Why It Matters:** Security teams distrust arbitrary AI scores (e.g., "Risk: 87%") when they cannot inspect the underlying arithmetic. TRACE exposes the exact mathematical formula and inputs:
-  $$\text{Confidence} = w_1 \cdot \text{Evidence Density} + w_2 \cdot \text{Entity Continuity} + w_3 \cdot \text{Anomaly Strength}$$
-* **What the Evaluator Sees:**
-  - A stage detail card displaying:
-    - *Supporting Events:* 3 events (`EVT-1002`, `EVT-1003`, `EVT-1004`).
-    - *Entity Continuity:* High (shared user `j.doe` and device `srv-finance-01`).
-    - *Calculated Stage Confidence:* 94%.
-    - *Evidence Integrity:* Verified (all event hashes match original logs).
-* **Technical Component Enabling It:** `engine/risk_scorer.py` and `engine/evidence_verifier.py`.
-* **How It Improves Judging Criteria:** Directly addresses "Does it explain why it believes something is an attack?" without relying on opaque LLM text.
-* **Fallback If Unavailable:** Fall back to simple deterministic rule counters (e.g., `Confidence = min(100, event_count * 30)`).
+### USP 3: Evidence-Backed Stage Confidence
+* **What It Does:** Each attack stage displays an interpretable confidence and risk rating derived from observable evidence attributes, rather than a black-box percentage.
+* **Why It Matters:** Evaluators and security analysts mistrust arbitrary numbers (e.g., "93% confident") when the system cannot justify where the number came from.
+* **Evaluator Experience:** For each stage, TRACE displays:
+  - The number of supporting log events found.
+  - Which critical entities were shared with previous stages (entity continuity).
+  - The severity weight of the observed action.
+  - A brief, clear rationale: *"Confidence high: 2 distinct events confirm root command execution on the target finance server following session drift."*
+* **Fallback If Needed:** Use a simple discrete rating scale (`Low`, `Medium`, `High`) based on the count and severity of supporting events.
 
 ---
 
 ### USP 4: Earliest Intervention Point (EIP)
-* **What It Does:** Analyzes the reconstructed attack chain and pinpoints the exact earliest stage where security operations could have intervened to stop the attack before damage or exfiltration occurred.
-* **Why It Matters:** Reconstructing an attack after exfiltration is only half the battle. Demonstrating *where* and *how* to stop the adversary bridges threat intelligence with active incident response.
-* **What the Evaluator Sees:**
-  - A highlighted amber beacon on the timeline and graph at Stage 2.
-  - An **Intervention Callout Box**:
-    > **Earliest Intervention Point:** Stage 2 (Session Drift / Device Anomaly)  
-    > **Why Here:** The adversary obtained credentials at 09:14 (Stage 1), but did not execute elevated commands until 09:19 (Stage 3). Terminating the session at Stage 2 prevents Privilege Escalation, Collection, and Exfiltration.  
-    > **Prescribed Action:** `REVOKE_SESSION(token="sess-8821")` & `ISOLATE_HOST(device="srv-finance-01")`.  
-    > **Blast Radius Avoided:** 14 sensitive records saved; 45MB outbound leak prevented.
-* **Technical Component Enabling It:** `engine/intervention_finder.py`.
-* **How It Improves Judging Criteria:** Exceeds the "Recommended Action" requirement by providing contextual, temporally grounded remediation advice.
-* **Fallback If Unavailable:** Fall back to recommending static remediation actions associated with the highest-risk individual stage.
+* **What It Does:** Analyzes the full reconstructed chain and algorithmically identifies the earliest moment where security teams could have intervened to stop the attack before damage occurred.
+* **Why It Matters:** Most tools focus purely on post-breach forensic reporting. TRACE bridges detection with incident response by answering: *"Where could we have stopped this with the least disruption?"*
+* **Evaluator Experience:**
+  - A prominent callout identifies the earliest intervention stage (e.g., after initial session drift, before privilege escalation or data access).
+  - Explains the reasoning: *"Intervening here terminates the attacker's foothold before elevated commands or sensitive financial data are accessed."*
+  - Recommends concrete actions: `REVOKE_SESSION`, `ISOLATE_HOST`, or `BLOCK_IP`.
+* **Fallback If Needed:** If the dynamic bottleneck algorithm needs simplification, map predefined containment recommendations to the first confirmed post-authentication stage.
 
 ---
 
-## 5. Concrete End-to-End Walkthrough (The 5-Stage Attack)
+## 5. Core User Experience
 
-To validate the architecture, we define the exact scenario simulated during the live demonstration:
+TRACE is designed for intuitive interaction during an evaluation or investigation:
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Attacker as Threat Actor (198.51.100.42)
-    participant Auth as Auth Server (srv-auth)
-    participant Host as Workstation (srv-finance-01)
-    participant Files as File Store (/confidential)
-    participant Egress as Exfiltration IP (203.0.113.88)
-    participant TRACE as TRACE Engine
+1. **Scenario Selection:** The evaluator selects an event feed from a dropdown:
+   - *Clean / Benign Baseline Feed:* Evaluates noise suppression and false-positive resistance.
+   - *Active Attack Feed:* Evaluates multi-stage reconstruction, entity linking, and timeline accuracy.
+2. **Immediate Threat Summary:** A clear status header displays overall risk, attack status, affected identities, and incident duration.
+3. **Dual Investigation Views:**
+   - **Chronological Timeline:** Displays the sequence of stages, timestamps, and stage summaries.
+   - **Interactive Attack Graph:** Displays how entities interlink and highlights the path taken by the attacker.
+4. **Deep Evidence Inspection:** Clicking any stage card or graph edge reveals the raw underlying log events.
+5. **Actionable Response:** An incident response card provides the recommended remediation step and earliest intervention guidance.
 
-    Attacker->>Auth: 09:14:02 - Unusual Login (User: j.doe)
-    Note over TRACE: Stage 1: Unusual Login Flagged
-    Attacker->>Host: 09:16:45 - Resume Session from Unknown Device
-    Note over TRACE: Stage 2: Session Drift Linked to j.doe [EIP Point]
-    Attacker->>Host: 09:19:10 - Spawn Elevated Shell (sudo/powershell)
-    Note over TRACE: Stage 3: Privilege Escalation Linked to Session
-    Attacker->>Files: 09:23:30 - Access 14 Restricted Finance Files
-    Note over TRACE: Stage 4: Sensitive File Access Linked to Process
-    Attacker->>Egress: 09:27:15 - Outbound HTTPS Burst (45MB)
-    Note over TRACE: Stage 5: Exfiltration Linked to Host Egress
-    Note over TRACE: Full 5-Stage Chain Reconstructed (Risk: 92/100)
+---
+
+## 6. End-to-End System Flow (Representative Attack Scenario)
+
+During development and testing, TRACE will use a representative multi-stage scenario. *(Note: This scenario is a representative design model; the team may simplify or adapt specific log attributes during implementation while preserving the core multi-stage requirements.)*
+
+```
+[Raw Log Ingestion]
+        │
+        ▼ (Stage 1: Initial Ingress)
+Unusual Authentication: User j.doe logs in from an unrecognised external IP address
+        │
+        ▼ (Stage 2: Session / Device Drift)  <── [EARLIEST INTERVENTION POINT]
+Session Attached: Session ID resumed from a host workstation never previously bound to j.doe
+        │
+        ▼ (Stage 3: Privilege Escalation)
+Process Spawn: Elevated command execution (sudo / admin shell) initiated under the session
+        │
+        ▼ (Stage 4: Sensitive Resource Access)
+File Read: Access to confidential financial reports or credential stores never previously touched
+        │
+        ▼ (Stage 5: Data Exfiltration)
+Outbound Network Burst: High-volume egress connection to an external, untrusted destination IP
 ```
 
-### Stage 1: Unusual Login
-* **Timestamp:** `2026-10-07T09:14:02Z` | **Event ID:** `EVT-2001`
-* **Raw Log:** `AUTH_SUCCESS user="j.doe" src_ip="198.51.100.42" host="srv-auth" auth_method="password" geo="Unknown-TOR-Exit"`
-* **Normalization:** `user: j.doe`, `source_ip: 198.51.100.42`, `action: LOGIN_SUCCESS`, `device: srv-auth`.
-* **Detection Finding:** Novel source IP for user `j.doe`; off-hours access (`anomaly_score: 0.72`).
-* **Graph Linking:** Creates node `USER:j.doe` and `IP:198.51.100.42`, connects via `LOGGED_IN_FROM`.
-
-### Stage 2: Unusual Session & Device Drift
-* **Timestamp:** `2026-10-07T09:16:45Z` | **Event ID:** `EVT-2002`
-* **Raw Log:** `SESSION_ATTACH user="j.doe" session_id="sess-8821" host="srv-finance-01" client_fingerprint="MAC-UNREGISTERED-8A"`
-* **Normalization:** `user: j.doe`, `device: srv-finance-01`, `session_id: sess-8821`.
-* **Detection Finding:** Session resumed on a device never previously bound to `j.doe` (`anomaly_score: 0.68`).
-* **Graph Linking:** Links `USER:j.doe` to `DEVICE:srv-finance-01` via `USED_DEVICE`.
-* **Intervention Marker:** Designated as the **Earliest Intervention Point**.
-
-### Stage 3: Privilege Escalation & Suspicious Process
-* **Timestamp:** `2026-10-07T09:19:10Z` | **Event ID:** `EVT-2003`
-* **Raw Log:** `PROCESS_SPAWN host="srv-finance-01" user="j.doe" parent="sshd" pid=4012 cmd="sudo -u root /bin/bash" integrity="high"`
-* **Normalization:** `device: srv-finance-01`, `application: bash`, `action: PRIVILEGE_ELEVATION`, `status: SUCCESS`.
-* **Detection Finding:** Sudden token elevation to root/system from non-interactive shell (`anomaly_score: 0.89`).
-* **Graph Linking:** Creates node `PROCESS:bash (PID 4012)`; links `DEVICE:srv-finance-01 -> RAN -> PROCESS:bash`.
-
-### Stage 4: Access to Sensitive / Previously Unaccessed Resources
-* **Timestamp:** `2026-10-07T09:23:30Z` | **Event ID:** `EVT-2004`
-* **Raw Log:** `FILE_READ host="srv-finance-01" user="j.doe" pid=4012 path="/confidential/finance/q3_forecast.xlsx" bytes=148200`
-* **Normalization:** `resource: /confidential/finance/q3_forecast.xlsx`, `action: FILE_READ`, `user: j.doe`.
-* **Detection Finding:** Access to restricted high-value financial directory with no historical baseline for user (`anomaly_score: 0.85`).
-* **Graph Linking:** Creates node `FILE:/confidential/finance/q3_forecast.xlsx`; links `PROCESS:bash -> ACCESSED -> FILE`.
-
-### Stage 5: Outbound Data Transfer / Exfiltration
-* **Timestamp:** `2026-10-07T09:27:15Z` | **Event ID:** `EVT-2005`
-* **Raw Log:** `NET_CONNECT host="srv-finance-01" src_ip="10.0.4.12" dest_ip="203.0.113.88" port=443 bytes_sent=47185920 proto="TCP"`
-* **Normalization:** `source_ip: 10.0.4.12`, `destination_ip: 203.0.113.88`, `action: EGRESS_DATA`, `metadata: {bytes: 47185920}`.
-* **Detection Finding:** Massive outbound data spike (45MB) to an unclassified external IP immediately following sensitive file read (`anomaly_score: 0.94`).
-* **Graph Linking:** Creates node `IP:203.0.113.88`; links `DEVICE:srv-finance-01 -> CONNECTED_TO -> IP:203.0.113.88`.
+### Traceability Across the 10-Step Pipeline:
+1. **Raw Log Ingestion:** Heterogeneous log entries (syslog, auth logs, process audits) are received.
+2. **Normalization:** Extracted into uniform `NormalizedEvent` records.
+3. **Entity Extraction:** Entities (`j.doe`, IP addresses, hostname, process name, file path) are indexed.
+4. **Suspicious Event Detection:** Heuristics flag unusual characteristics (novel IP, elevated token, sensitive directory, outbound volume).
+5. **Graph Construction:** Nodes and edges are established with raw event IDs attached to each relationship.
+6. **Temporal Correlation:** Events occurring within a sliding correlation window are checked for entity continuity.
+7. **Attack Stage Identification:** Consecutive correlated events are grouped into sequential kill-chain stages.
+8. **Evidence Verification:** Every stage is checked to ensure it contains verifiable event IDs and raw log text.
+9. **Risk & Intervention Calculation:** Overall risk is computed, and the earliest actionable intervention point is identified.
+10. **UI Presentation:** The final timeline, graph, evidence drawer, and response recommendations are displayed.
 
 ---
 
-## 6. Formal Data Model
+## 7. Data and Event Model
 
-All internal engines communicate strictly using frozen Pydantic schemas in `shared/schemas/`:
+All components communicate using standard data structures. The schema is defined cleanly and can be extended during development if needed:
 
 ```python
-from datetime import datetime
-from typing import Any, Dict, List, Optional
-from pydantic import BaseModel, Field
-
-class NormalizedEvent(BaseModel):
-    event_id: str = Field(..., description="Unique immutable event identifier, e.g., EVT-1001")
-    timestamp: datetime = Field(..., description="ISO 8601 UTC timestamp")
-    event_type: str = Field(..., description="AUTH, SESSION, PROCESS, FILE, NETWORK")
-    user: Optional[str] = Field(None, description="Username or security principal")
-    device: Optional[str] = Field(None, description="Hostname, workstation ID, or server label")
-    source_ip: Optional[str] = Field(None, description="Source IPv4/IPv6 address")
-    destination_ip: Optional[str] = Field(None, description="Destination IPv4/IPv6 address")
-    application: Optional[str] = Field(None, description="Process name or application binary")
-    resource: Optional[str] = Field(None, description="Target file path, database table, or URI")
-    action: str = Field(..., description="Standardized verb: LOGIN, SPAWN, READ, CONNECT, etc.")
-    status: str = Field(..., description="SUCCESS or FAILURE")
-    metadata: Dict[str, Any] = Field(default_factory=dict, description="Supplementary fields (bytes, port, PID)")
-    raw_log: str = Field(..., description="Original raw syslog/JSON string for evidence audit")
-
-class EvidenceReference(BaseModel):
-    event_id: str
-    timestamp: datetime
-    raw_log: str
-    provenance_fields: List[str]
-
-class AttackStageDTO(BaseModel):
-    stage_id: str
-    stage_name: str  # Initial Access, Session Migration, Privilege Escalation, Collection, Exfiltration
-    stage_order: int
-    timestamp_start: datetime
-    timestamp_end: datetime
-    evidence_event_ids: List[str]
-    entities_involved: List[str]
-    stage_risk: float  # 0.0 - 100.0
-    stage_confidence: float  # 0.0 - 1.0
-    summary: str
-
-class GraphNodeDTO(BaseModel):
-    id: str
-    label: str
-    type: str  # USER, DEVICE, IP, APPLICATION, FILE
-    is_compromised: bool
-    risk_score: float
-
-class GraphEdgeDTO(BaseModel):
-    source: str
-    target: str
-    relation: str  # LOGGED_IN_FROM, USED_DEVICE, SPAWNED_PROCESS, ACCESSED, CONNECTED_TO
-    evidence_event_ids: List[str]
-    is_attack_path: bool
-
-class AttackGraphDTO(BaseModel):
-    nodes: List[GraphNodeDTO]
-    edges: List[GraphEdgeDTO]
-
-class InterventionRecommendationDTO(BaseModel):
-    earliest_stage_id: str
-    target_entity: str
-    recommended_action: str
-    rationale: str
-    mitigated_downstream_stages: List[str]
-
-class AnalysisResponse(BaseModel):
-    incident_id: str
-    overall_risk: float
-    confidence: float
-    is_attack_detected: bool
-    stages: List[AttackStageDTO]
-    graph: AttackGraphDTO
-    intervention: Optional[InterventionRecommendationDTO]
-    narrative_story: List[str]
-    total_events_analyzed: int
-    unlinked_anomalies_count: int
+# Conceptual Event Schema (shared/schemas/events.py)
+class NormalizedEvent:
+    event_id: str               # Unique identifier for this log record (e.g., EVT-1001)
+    timestamp: str              # ISO 8601 UTC timestamp
+    event_type: str             # Category: AUTH, SESSION, PROCESS, FILE, NETWORK
+    user: Optional[str]         # Associated username or account principal
+    device: Optional[str]       # Hostname, workstation ID, or server label
+    source_ip: Optional[str]    # Originating IP address
+    destination_ip: Optional[str]# Destination IP address
+    application: Optional[str]  # Application name or process binary
+    resource: Optional[str]     # Target file path, resource URI, or database table
+    action: str                 # Standardized action verb (LOGIN, SPAWN, READ, CONNECT)
+    status: str                 # SUCCESS or FAILURE
+    metadata: dict              # Flexible key-value store (bytes, PID, session_id, port)
+    raw_log: str                # Original log line for evidence verification
 ```
+
+### Purpose of Key Fields:
+- `event_id`: Immutable audit key linking graph edges and timeline stages to raw data.
+- `raw_log`: Preserves the exact original string to satisfy the problem statement requirement that every claim has proof.
+- `metadata`: Accommodates format-specific details (e.g., transferred bytes, process IDs) without breaking normalization.
 
 ---
 
-## 7. Entity Graph Topology
+## 8. Entity Model
 
-Relationships in the TRACE entity graph are strictly directional and semantically typed:
+Entities are canonical security objects extracted from events:
+
+| Entity Type | Example Values | Linking Role |
+|---|---|---|
+| **User** | `j.doe`, `admin` | Connects authentication attempts to subsequent process and resource activity. |
+| **Device** | `srv-finance-01`, `ws-hr-04` | Connects host-level process execution to network ingress and egress. |
+| **IP Address** | `198.51.100.42`, `10.0.4.12` | Connects external threat sources to internal hosts and exfiltration destinations. |
+| **Application / Process** | `bash`, `powershell.exe`, `curl` | Connects user execution to file modifications and network connections. |
+| **File / Resource** | `/confidential/q3_forecast.xlsx` | Identifies targeted sensitive assets. |
+
+---
+
+## 9. Attack Graph Topology
+
+The attack graph represents observed interactions between entities:
 
 ```
 [USER: j.doe]
     │
-    ├── (LOGGED_IN_FROM) ────────► [IP: 198.51.100.42] (Attacker IP)
+    ├── (LOGGED_IN_FROM) ────────► [IP: 198.51.100.42] (Source IP)
     │
     └── (USED_DEVICE) ───────────► [DEVICE: srv-finance-01]
                                         │
-                                        ├── (SPAWNED_PROCESS) ──────► [PROCESS: bash (PID 4012)]
+                                        ├── (SPAWNED_PROCESS) ──────► [PROCESS: bash]
                                         │                                    │
                                         │                                    └── (ACCESSED) ──► [FILE: q3_forecast.xlsx]
                                         │
-                                        └── (CONNECTED_TO) ─────────► [IP: 203.0.113.88] (Exfil IP)
+                                        └── (CONNECTED_TO) ─────────► [IP: 203.0.113.88] (Destination IP)
 ```
 
-### Graph Construction Invariants
-1. **No Inferred Entities:** Entities must be explicitly extracted from ingested event fields.
-2. **No Dangling Edges:** An edge connecting entity $A$ and entity $B$ must cite at least one `event_id` in its metadata.
-3. **Compromise Propagation:** A node is flagged `is_compromised: True` if and only if it participates in an edge that belongs to a confirmed attack stage.
+### Graph Rules:
+- **Evidence Requirement:** Every edge must hold an `evidence_event_ids` list containing $\ge 1$ raw event ID.
+- **Zero Ghost Edges:** Edges cannot be created by heuristic inference alone; they must reflect an observed log event.
+- **Compromise Highlighting:** Nodes involved in confirmed attack stages are visually highlighted to contrast with neutral context.
 
 ---
 
-## 8. Attack Chain Reasoning & Temporal Correlation
+## 10. Attack Chain Reasoning & Temporal Correlation
 
-How do individual events become a coherent attack chain?
+To transform isolated alerts into a coherent attack chain, TRACE applies three core correlation principles:
 
-```
-Raw Suspicious Events
-  │
-  ├── [Temporal Filter] ─────► Are events within sliding window Δt ≤ 60 minutes?
-  │                                    │ YES
-  ├── [Entity Binding] ──────► Do consecutive events share ≥ 1 common entity (User, Host, Session)?
-  │                                    │ YES
-  ├── [Stage Progression] ───► Does the sequence advance across kill-chain phases (Access → Exec → Impact)?
-  │                                    │ YES
-  └── [Multi-Stage Threshold] ─► Does the correlated cluster contain ≥ 3 distinct stages?
-                                       │ YES
-                                       ▼
-                             CONFIRMED ATTACK CHAIN
-```
-
-1. **Sliding Time Window:** Events must occur within $\Delta t \le 60\text{ minutes}$ of each other to maintain temporal coherence.
-2. **Entity Continuity:** Event $E_{i}$ and $E_{i+1}$ must share at least one pivot entity:
+1. **Temporal Ordering:** Events must respect temporal progression. An initial login must precede process spawning, which in turn must precede file access and egress.
+2. **Entity Continuity:** For event $E_{i}$ to connect to event $E_{i+1}$, they must share at least one common entity (same user, same device, or same active session token):
    $$\text{Entities}(E_i) \cap \text{Entities}(E_{i+1}) \neq \emptyset$$
-3. **Causal Progression:** Stages must advance forward in kill-chain hierarchy. A login after exfiltration does not advance the chain.
-4. **Suppression of Isolated Events:** An isolated event that fails entity continuity remains an unlinked anomaly and is never elevated to an attack chain.
+3. **Multi-Stage Thresholding:** Isolated anomalies that do not connect to a broader sequence are categorized as unlinked anomalies rather than an active attack chain.
 
 ---
 
-## 9. False-Positive Strategy: "Quiet by Default"
+## 11. False-Positive Strategy: "Quiet by Default"
 
-The problem statement explicitly warns:
+The problem statement explicitly highlights false-positive resistance:
 > *"False positives matter. Too many alerts on clean/benign logs can cap the score. More alerts does NOT mean a better system."*
 
-TRACE implements a three-tier noise suppression hierarchy:
-
-| Event Nature | Example | System Reaction | Evaluator Display |
-|---|---|---|---|
-| **Tier 1: Benign Baseline** | Regular login, user browsing web, normal cron job | Filtered during normalization. Ingested into graph context as neutral nodes. | **Zero Alerts.** Overall Risk = Low (0–10). Dashboard remains completely green. |
-| **Tier 2: Isolated Anomaly** | 1 failed password attempt, 1 benign dev accessing `/etc/hosts` | Flagged by detector, but fails Entity Continuity and Multi-Stage Threshold ($\text{stages} < 3$). | Logged to `unlinked_anomalies_count`. **No attack chain declared.** Risk remains Low (15–25). |
-| **Tier 3: Multi-Stage Attack** | Login + Session Drift + Sudo + File Read + Egress | Passes temporal window, shares user/host entities, and spans $\ge 3$ kill-chain stages. | **Attack Chain Declared.** Risk escalates to High/Critical (85–95). Full alert triggered. |
-
-**The Golden Guarantee:** TRACE will never declare an attack chain based on a single suspicious event. A minimum of **3 correlated stages** sharing entity continuity is mathematically required to trigger an attack incident.
-
----
-
-## 10. Evidence Verification Model
-
-TRACE enforces an immutable evidence chain from the UI down to the disk:
+TRACE avoids alert fatigue through a tiered filtering strategy:
 
 ```
-[UI Timeline Card: Stage 4]
-       │
-       ▼ (Clicks "Inspect Evidence")
-[Evidence Drawer]
-       │
-       ├── Displays Event ID: "EVT-2004"
-       ├── Displays Timestamp: "2026-10-07T09:23:30Z"
-       ├── Highlights Critical Fields: path="/confidential/finance/q3_forecast.xlsx", bytes=148200
-       │
-       ▼ (Verification Hash)
-[Cryptographic Checksum]
-       SHA256("EVT-2004|FILE_READ|j.doe|srv-finance-01|/confidential/finance/q3_forecast.xlsx")
-       Match: TRUE (Evidence Verified)
+┌────────────────────────────────────────────────────────────────────────┐
+│ 1. BENIGN BASELINE TRAFFIC                                             │
+│    • Routine user logins, normal browsing, routine system tasks        │
+│    • Outcome: Filtered out; dashboard remains calm and green           │
+├────────────────────────────────────────────────────────────────────────┤
+│ 2. ISOLATED ANOMALIES                                                  │
+│    • Single mistyped password, isolated non-critical error log         │
+│    • Outcome: Recorded as unlinked anomaly; no attack chain declared   │
+├────────────────────────────────────────────────────────────────────────┤
+│ 3. COHESIVE MULTI-STAGE ATTACK                                         │
+│    • Temporally correlated sequence sharing entity continuity (≥3 steps│
+│    • Outcome: High-priority Attack Chain declared                      │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-If an evaluator opens any stage on the dashboard, the raw log text is displayed directly with provenance highlighting. If an attack stage cannot point to an existing event ID in the database, the stage is rejected as invalid by `engine/evidence_verifier.py`.
+**Key Principle:** The system stays quiet by default. An attack chain is only declared when multiple suspicious stages are linked across time and entities.
 
 ---
 
-## 11. Deterministic Risk & Response Formulation
+## 12. Evidence Model & Audit Trail
 
-TRACE rejects arbitrary or hallucinated risk metrics. All numbers are derived from deterministic formulas:
+To satisfy the judging requirement that **every attack stage must have proof**, TRACE implements complete traceability:
 
-### Stage Risk Score Formula
-$$\text{StageRisk} = \text{BaseSeverity} \times (1.0 + 0.2 \cdot \text{AssetWeight}) \times \text{Confidence}$$
-
-- $\text{BaseSeverity}$: Initial Access = 30, Session Drift = 40, Privilege Escalation = 65, Collection = 75, Exfiltration = 90.
-- $\text{AssetWeight}$: High-value finance/domain controller = 1.5; standard host = 1.0.
-- $\text{Confidence}$: Ratio of verified log attributes present ($\in [0.8, 1.0]$).
-
-### Overall Attack Risk Formula
-$$\text{OverallRisk} = \min\left(100.0, \, \max_{s \in \text{Stages}}(\text{StageRisk}_s) + 5.0 \times (N_{\text{stages}} - 1)\right)$$
-
-For our 5-stage attack:
-$$\text{OverallRisk} = \min(100.0, \, 90 + 5 \times 4) = 100.0 \text{ (Adjusted to 94.5 based on confidence)}$$
-
-### Earliest Intervention Point Algorithm
-The system identifies the **first stage where the attacker transitioned from passive access to active execution**:
-$$\text{EIP} = \arg\min_{s \in \text{Stages}} \left(\text{StageOrder}(s) \ge 2\right)$$
-In our sequence, Stage 2 (Session Drift) is selected because terminating the session at Stage 2 cuts off access before elevated execution (Stage 3), data access (Stage 4), or exfiltration (Stage 5) can occur.
+- **Stage Record:** Contains `stage_name`, `timestamp_range`, `entities_involved`, and `evidence_event_ids`.
+- **Evidence Audit:** Clicking any stage displays the raw log records corresponding to those IDs.
+- **Integrity Guarantee:** If a stage cannot point to valid, ingested raw event IDs, it is rejected by the system.
 
 ---
 
-## 12. Frontend Interface Specification
+## 13. Risk Scoring & Explanation Logic
 
-The frontend is an operational cybersecurity dashboard built for rapid evaluator comprehension:
+TRACE calculates risk transparently:
+
+- **Stage Risk:** Calculated based on the severity of the action (e.g., privilege escalation carries higher inherent risk than an unusual login) adjusted by asset criticality.
+- **Overall Attack Risk:** Increases as the attack chain advances across more stages. A single anomaly produces a low score; a multi-stage sequence advancing to collection and exfiltration produces a critical score.
+- **Explainability:** The UI explains the risk through concrete factors:
+  - Progression across multiple kill-chain phases.
+  - Presence of privileged command execution.
+  - Involvement of high-value internal assets.
+
+---
+
+## 14. Recommended Response & Earliest Intervention Point
+
+### Recommended Actions
+Rather than generic advice, TRACE recommends concrete, context-aware remediation actions:
+- `REVOKE_SESSION`: Terminate specific compromised session token.
+- `ISOLATE_HOST`: Cut off network connectivity to the affected endpoint.
+- `BLOCK_IP`: Add malicious source or destination IP to firewall blocklists.
+- `AUDIT_RESOURCE`: Review accessed file paths for potential data exposure.
+
+### Earliest Intervention Point (EIP)
+TRACE identifies the earliest stage where containment would have prevented downstream damage:
+- **Identification:** Pinpoints the transition point between initial access and subsequent exploitation.
+- **Rationale:** Explains why intervening at this point stops the kill chain before privilege escalation, collection, or exfiltration occurs.
+
+---
+
+## 15. Frontend Dashboard Specification
+
+The user interface delivers a clear, professional investigation experience:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ TRACE ── Threat Reconstruction & Attack Chain Evidence              [Load Scenario: ▼] │
+│ TRACE ── Threat Reconstruction & Attack Chain Evidence              [Scenario: ▼]      │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
-│ THREAT SUMMARY: [ CRITICAL RISK: 94/100 ]   Status: Active Attack   Duration: 13m 13s   │
-│ Compromised: User: j.doe  |  Host: srv-finance-01  |  External Threat IP: 198.51.100.42│
+│ THREAT SUMMARY: [ STATUS: ACTIVE ATTACK ]   Risk Level: CRITICAL   Duration: 13m 13s   │
+│ Target Host: srv-finance-01  |  Compromised Account: j.doe  |  Threat IP: 198.51.100.42│
 ├───────────────────────────────────────────┬────────────────────────────────────────────┤
-│ 1. INTERACTIVE ATTACK TIMELINE            │ 2. ENTITY RELATIONSHIP GRAPH               │
+│ 1. CHRONOLOGICAL ATTACK TIMELINE          │ 2. INTERACTIVE ATTACK GRAPH                │
 │ [▶ Play] [⏸ Pause] [⏮ Step] [⏭ Step]      │                                            │
 │                                           │       [IP: 198.51.100.42]                  │
 │ [Stage 1] 09:14 ── Unusual Login          │               │ (Logged in from)           │
-│   User j.doe from untrusted IP            │               ▼                            │
+│   Account j.doe from novel IP             │               ▼                            │
 │                                           │       [USER: j.doe]                        │
 │ [Stage 2] 09:16 ── Session Migration      │               │ (Used device)              │
 │   * EARLIEST INTERVENTION POINT *         │               ▼                            │
 │                                           │     [DEVICE: srv-finance-01]               │
 │ [Stage 3] 09:19 ── Privilege Escalation   │         │               │                  │
-│   Bash spawned with root permissions      │         ▼ (Ran)         ▼ (Connected to)   │
+│   Elevated command execution under session│         ▼ (Ran)         ▼ (Connected to)   │
 │                                           │     [PROCESS: bash]   [IP: 203.0.113.88]   │
 │ [Stage 4] 09:23 ── Sensitive File Read    │         │ (Accessed)                       │
-│   148KB read from /confidential/finance   │         ▼                                  │
+│   Direct read of restricted finance file  │         ▼                                  │
 │                                           │     [FILE: q3_forecast.xlsx]               │
-│ [Stage 5] 09:27 ── Data Exfiltration      │                                            │
-│   45MB egress burst to unlisted IP        │                                            │
+│ [Stage 5] 09:27 ── Outbound Exfiltration  │                                            │
+│   High-volume egress connection to dest IP│                                            │
 ├───────────────────────────────────────────┴────────────────────────────────────────────┤
 │ 3. EARLIEST INTERVENTION PLAYBOOK:                                                     │
 │ Recommended Action: REVOKE_SESSION(sess-8821) & ISOLATE_HOST(srv-finance-01)          │
-│ Rationale: Severing session at Stage 2 prevents downstream Privilege Escalation & Leak │
+│ Rationale: Terminating session at Stage 2 prevents privilege escalation & data leak    │
 ├────────────────────────────────────────────────────────────────────────────────────────┤
 │ 4. EVIDENCE DRAWER (Deep Inspection):                                                  │
-│ Event ID: EVT-2004  |  Timestamp: 2026-10-07T09:23:30Z  | Status: Verified             │
+│ Event ID: EVT-2004  |  Timestamp: 2026-10-07T09:23:30Z  | Verification: Confirmed      │
 │ Raw Log: FILE_READ host="srv-finance-01" user="j.doe" path="/confidential/finance/..." │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 13. Live Demonstration Script (3-Minute Flow)
+## 16. Live Demo Experience (3-Minute Script)
 
-To ensure the judging criteria are demonstrated with maximum clarity, the team will execute this exact script:
+To present TRACE effectively, the team will walk through this clear 3-minute sequence:
 
-* **0:00 – 0:45 | Benign Baseline & False Positive Control:**
-  - *Action:* Select "Scenario A: Clean Enterprise Traffic (150 logs)".
-  - *Evaluator Sees:* Overall Risk is Low (8/10). All status indicators are green. 0 attack chains detected.
-  - *Pitch:* "Notice that TRACE remains completely quiet on normal enterprise traffic. We do not spam alerts. Single failed logins are suppressed. The problem statement says false positives cap the score, and our system stays quiet on benign logs."
-
-* **0:45 – 1:45 | Attack Ingestion & Chronological Replay (USP 1 & 2):**
-  - *Action:* Switch dropdown to "Scenario B: Multi-Stage Infiltration". Click "Play Attack Replay".
-  - *Evaluator Sees:* Risk jumps to Critical (94/100). The timeline cards appear sequentially. The entity graph dynamically draws the connections from `198.51.100.42` to `j.doe`, to `srv-finance-01`, to the spawned bash process, to the confidential file, and finally to the exfiltration IP.
-  - *Pitch:* "Watch the attack reconstruct in real-time. TRACE linked the user, device, process, and foreign IPs across time into one unified 5-stage attack chain."
-
-* **1:45 – 2:30 | Evidence Verification & Drill-Down (PS Requirement):**
-  - *Action:* Click on Stage 4 (File Read) in the timeline. The Evidence Drawer slides open.
-  - *Evaluator Sees:* Raw JSON syslog string `EVT-2004` with highlighted file path and byte count.
-  - *Pitch:* "Every single attack stage has proof. Clicking any stage or graph edge exposes the exact raw log entry that produced it. We never invent graph edges or attack claims."
-
-* **2:30 – 3:00 | Earliest Intervention Point & Recommended Action (USP 4):**
-  - *Action:* Click on the "Earliest Intervention Point" badge on Stage 2. Click "Simulate Intervention".
-  - *Evaluator Sees:* Stages 3, 4, and 5 turn translucent/grey. The UI displays the containment command: `REVOKE_SESSION(sess-8821)`.
-  - *Pitch:* "We don't just report the disaster; we tell the analyst where to stop it. TRACE calculates Stage 2 as the earliest intervention point. Severing the session here neutralizes the privilege escalation and saves the confidential financial records."
+1. **Step 1: Benign Baseline (0:00 – 0:45)**
+   - Select the clean background dataset.
+   - Show that the system stays calm and green, with zero attack chains declared.
+   - *Message:* "Notice that TRACE does not raise false alarms on routine enterprise activity. It stays quiet on benign logs."
+2. **Step 2: Attack Stream & Replay (0:45 – 1:45)**
+   - Switch to the active attack dataset.
+   - Trigger the Attack Replay to show events appearing step-by-step.
+   - *Message:* "Here is the attack unfolding in chronological order. TRACE links the user, host, process, and external IPs into one cohesive attack chain."
+3. **Step 3: Evidence Inspection (1:45 – 2:30)**
+   - Click on a stage in the timeline and open the Evidence Drawer.
+   - Show the exact underlying raw log record.
+   - *Message:* "Every single attack stage has verifiable proof. Clicking any stage exposes the exact raw log entry that produced it."
+4. **Step 4: Earliest Intervention Point (2:30 – 3:00)**
+   - Highlight the Earliest Intervention Point badge and recommended action.
+   - *Message:* "TRACE identifies Stage 2 as the earliest point to cut off the adversary, preventing privilege escalation and data exfiltration before damage occurred."
 
 ---
 
-## 14. What We Are NOT Building (Explicit Anti-Scope)
+## 17. Scope Classification: MVP vs. USP vs. Stretch
 
-To avoid scope creep and preserve 100% execution quality, the team explicitly rejects the following:
-
-- **NOT a General Enterprise SIEM:** We are not parsing 10,000 proprietary firewall formats or building syslog ingest daemons.
-- **NOT an LLM-Only Hallucination Engine:** We do not feed raw logs to a generative AI prompt and ask it to "guess the attack." Detection and correlation are deterministic and graph-based.
-- **NOT a Production SOC Workflow Tool:** No ticket management, no user authentication logins, no multi-tenant billing.
-- **NOT a Universal Threat Signature DB:** We are not implementing all 600 MITRE ATT&CK techniques. We target the multi-stage scenario required by HNX26PSI03.
-
----
-
-## 15. MVP vs. Stretch Feature Matrix
-
-| Feature | Category | Hackathon Status | Justification / Impact |
+| Feature | Category | Priority | Scope Rationale |
 |---|---|---|---|
-| **JSON Log Normalization** | Core PS | **MVP (Mandatory)** | Standardizes heterogeneous fields into `NormalizedEvent`. |
-| **Multi-Entity Graph Linking** | Core PS | **MVP (Mandatory)** | Connects users, devices, IPs, and processes without ghost edges. |
-| **Temporal Attack Correlator** | Core PS | **MVP (Mandatory)** | Orders stages chronologically within sliding time windows. |
-| **Evidence Audit Drawer** | Core PS | **MVP (Mandatory)** | Proves every stage is backed by verifiable raw log records. |
-| **Benign Noise Suppression** | Core PS | **MVP (Mandatory)** | Guarantees zero false alarm chains on clean traffic feeds. |
-| **Deterministic Risk Scorer** | Core PS | **MVP (Mandatory)** | Computes explainable risk scores from mathematical formulas. |
-| **Earliest Intervention Point** | USP 4 | **MVP (Mandatory)** | Algorithmic bottleneck detection to interrupt kill chains. |
-| **Attack Replay Controller** | USP 1 | **MVP (Mandatory)** | Interactive chronological playback of the attack unfolding. |
-| **Evidence-First Interactive Graph** | USP 2 | **MVP (Mandatory)** | Interactive Cytoscape graph with clickable evidence bindings. |
-| *LLM Incident Summary Synthesis* | Stretch | *Stretch (Optional)* | Polished analyst report generated via local prompt (if time permits). |
-| *Unsupervised Isolation Forest ML* | Stretch | *Stretch (Optional)* | Additional anomaly scoring layer on top of heuristic rules. |
-| *Multi-Attacker Simultaneous Chains* | Stretch | *Stretch (Optional)* | Tracking two concurrent adversaries targeting different hosts. |
+| **Log Normalization** | Core PS | **P0 (Must Have)** | Baseline requirement to handle heterogeneous security logs. |
+| **Entity Linking** | Core PS | **P0 (Must Have)** | Connects users, devices, IPs, and processes into a shared graph. |
+| **Temporal Correlation** | Core PS | **P0 (Must Have)** | Orders events chronologically within sliding time windows. |
+| **Evidence Binding** | Core PS | **P0 (Must Have)** | Links every stage directly to raw log event IDs. |
+| **Noise Suppression** | Core PS | **P0 (Must Have)** | Guarantees zero false alarm chains on benign traffic. |
+| **Actionable Recommendations** | Core PS | **P0 (Must Have)** | Recommends practical containment actions. |
+| **Interactive Graph Canvas** | UI / Judge | **P1 (Important)** | Visualizes entity relationships and attack paths. |
+| **Timeline View** | UI / Judge | **P1 (Important)** | Displays chronological progression of stages. |
+| **Evidence Drawer** | UI / Judge | **P1 (Important)** | Allows evaluators to drill down into raw log strings. |
+| **Attack Replay Controller** | USP | **P2 (Differentiator)** | Interactive temporal playback of how the attack unfolded. |
+| **Earliest Intervention Point** | USP | **P2 (Differentiator)** | Identifies optimal cutoff point to minimize breach damage. |
+| *LLM Incident Summary Synthesis* | Stretch | *P3 (Stretch)* | Generates natural language summary (offline fallback if slow). |
+| *Multi-Attacker Simultaneous Chains* | Stretch | *P3 (Stretch)* | Tracks two concurrent, independent attack chains. |
+| *Unsupervised Clustering Layer* | Stretch | *P3 (Stretch)* | Additional anomaly scoring layer on top of heuristics. |
 
 ---
 
-## 16. Technical Architecture
+## 18. What We Are NOT Building (Explicit Scope Boundaries)
+
+To avoid distractions and ensure high-quality delivery, the team will **not** attempt:
+
+- **Not an Enterprise SIEM Replacement:** No support for hundreds of proprietary enterprise formats, syslog agents, or complex fleet management.
+- **Not an LLM-Only Guesser:** We do not rely on generative models to invent attack logic. Detection is structured, deterministic, and evidence-bound.
+- **Not a Production SOC Ticketing Tool:** No user login systems, ticket queues, or multi-tenant billing infrastructure.
+- **Not an Overengineered Distributed Architecture:** No Kafka, no message brokers, no Kubernetes clusters, and no complex microservices. A clean, single-process FastAPI backend and React frontend ensure maximum reliability.
+
+---
+
+## 19. Technical Architecture
 
 ```
-[ RAW JSON / SYSLOG STREAMS ]
-              │
-              ▼
-    ┌───────────────────┐
-    │  Event Normalizer │ ── (data/generator.py & engine/normalizer.py)
-    └───────────────────┘
-              │ Maps raw strings to NormalizedEvent
-              ▼
-    ┌───────────────────┐
-    │   Entity Linker   │ ── Extracts Users, Devices, IPs, Processes, Files
-    └───────────────────┘
-              │ Builds in-memory NetworkX DiGraph
-              ▼
-    ┌───────────────────┐
-    │ Detection Engine  │ ── Heuristics, statistical baselines, anomaly scoring
-    └───────────────────┘
-              │ Annotates events with anomaly_score & reason
-              ▼
-    ┌───────────────────┐
-    │ Chain Correlator  │ ── Sliding temporal window + Entity binding rules
-    └───────────────────┘
-              │ Reconstructs chronological multi-stage attack
-              ▼
-    ┌───────────────────┐
-    │ Evidence Verifier │ ── Validates event existence, computes integrity hashes
-    └───────────────────┘
-              │ Guarantees 100% evidence traceability
-              ▼
-    ┌───────────────────┐
-    │  Risk & Response  │ ── Computes Stage & Total Risk; identifies Earliest Intervention
-    └───────────────────┘
-              │ Emits AnalysisResponse schema
-              ▼
-    ┌───────────────────┐
-    │  FastAPI REST API │ ── Endpoints: /api/analyze, /api/scenarios, /api/simulate
-    └───────────────────┘
-              │ JSON payloads over HTTP
-              ▼
-    ┌───────────────────┐
-    │ React / Vite UI   │ ── Timeline, Cytoscape Graph, Replay Controls, Evidence Drawer
-    └───────────────────┘
+[ RAW SECURITY LOG FEEDS ]
+            │
+            ▼
+┌─────────────────────────┐
+│     Event Normalizer    │ ── Maps raw entries to NormalizedEvent schema
+└─────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│      Entity Linker      │ ── Resolves Users, Devices, IPs, Processes, Files
+└─────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│     Detection Engine    │ ── Heuristics, anomaly signals, and noise suppression
+└─────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│ Attack Chain Correlator │ ── Enforces temporal windows and entity continuity
+└─────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│    Evidence Verifier    │ ── Validates event IDs and binds raw proof to stages
+└─────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐
+│     Risk & Response     │ ── Computes risk score and Earliest Intervention Point
+└─────────────────────────┘
+            │ Emits AnalysisResponse schema
+            ▼
+┌─────────────────────────┐
+│    FastAPI REST API     │ ── High-performance backend endpoints
+└─────────────────────────┘
+            │ JSON over HTTP
+            ▼
+┌─────────────────────────┐
+│    React / Vite UI      │ ── Timeline, Entity Graph, Replay, Evidence Drawer
+└─────────────────────────┘
 ```
 
 ---
 
-## 17. Declared Resources & Dependencies
+## 20. Resource Declaration
 
-In compliance with hackathon regulations, all libraries, datasets, and tooling are declared:
+In compliance with hackathon regulations:
 
-* **Open-Source Backend Libraries:**
-  - `FastAPI` (v0.110+) & `Uvicorn`: High-performance asynchronous API framework.
-  - `NetworkX` (v3.2+): Graph creation, traversal, and entity linking algorithms.
-  - `Pydantic` (v2.6+): Strict schema enforcement and contract serialization.
-  - `Scikit-learn` / `NumPy`: Baseline statistical distributions and anomaly scoring.
-  - `Pytest`: Automated unit testing and false-positive verification.
+* **Backend Libraries:**
+  - `FastAPI` & `Uvicorn`: Lightweight, fast API service.
+  - `NetworkX`: In-memory graph analytics and entity relationship modeling.
+  - `Pydantic`: Strict schema validation and contract enforcement.
+  - `Pytest`: Automated testing for detection and correlation logic.
+  - `NumPy` / `Scikit-learn` *(optional)*: Baseline statistical calculations.
 
-* **Open-Source Frontend Libraries:**
-  - `React` (v18+) with `Vite`: Frontend application runtime and build tooling.
-  - `Tailwind CSS`: Utility-first UI styling and responsive layouts.
-  - `Cytoscape.js` / `@xyflow/react`: Interactive directed graph canvas and layouts.
-  - `Lucide-React`: Consistent iconography for cybersecurity entities.
+* **Frontend Libraries:**
+  - `React` with `Vite`: High-performance UI framework and build tool.
+  - `Tailwind CSS`: Rapid, clean component styling.
+  - `Cytoscape.js` / `@xyflow/react` / SVG: Directed graph visualization.
+  - `Lucide-React`: Icons for cybersecurity entities.
 
-* **Datasets & Generators:**
-  - `Synthetic Enterprise Log Generator` (`data/generator.py`): Authored by DEV-1 to produce reproducible benign traffic and the 5-stage attack scenario modeled after MITRE ATT&CK enterprise techniques (T1078, T1548, T1005, T1048).
+* **Datasets & Testing Telemetry:**
+  - Synthetic enterprise log dataset (`data/generator.py`): Authored for this project to represent standard enterprise telemetry with both benign baseline traffic and a cohesive multi-stage attack modeled after MITRE ATT&CK techniques.
 
-* **AI / Large Language Model Usage:**
-  - Deterministic template engine (`engine/story_generator.py`) is primary. Optional local LLM endpoint for analyst narrative generation is strictly isolated so that system operation is 100% functional offline without internet access.
+* **AI / Model Usage:**
+  - Deterministic rules and graph analytics form the primary detection foundation. Any optional language model usage for narrative text generation is isolated with deterministic offline fallbacks.
 
 ---
 
-## 18. Measurable Acceptance Criteria
+## 21. Measurable Acceptance Criteria
 
-The TRACE system is accepted as successful when it passes all 8 objective test criteria:
+The TRACE solution will be considered complete when it meets the following functional criteria:
 
-1. **Entity Linking Test:** When provided with an event stream containing `j.doe`, `198.51.100.42`, and `srv-finance-01`, the graph accurately links all three nodes with the correct directed edge types.
-2. **Temporal Order Test:** Attack stages in `AnalysisResponse.stages` strictly follow $t_{\text{start}}(S_i) \le t_{\text{start}}(S_{i+1})$.
-3. **Evidence Integrity Test:** 100% of generated attack stages contain $\ge 1$ supporting `event_id` referencing a valid raw log record.
-4. **False Positive Rejection Test:** Ingesting `benign_traffic.json` (150 events) outputs `is_attack_detected: False`, `overall_risk < 15`, and 0 attack chains.
-5. **Attack Detection Test:** Ingesting `multi_stage_attack.json` outputs `is_attack_detected: True`, `overall_risk > 85`, and links all 5 stages.
-6. **Earliest Intervention Test:** The system designates Stage 2 as the optimal intervention point and outputs an actionable containment recommendation.
-7. **End-to-End API Test:** `POST /api/analyze` executes in under 500ms on a 500-event payload and returns HTTP 200 with valid schema.
-8. **Replay Interaction Test:** Evaluator can step through the timeline and observe the graph dynamically populate in chronological order.
+1. **Entity Linking:** Disparate events sharing users, devices, IPs, or processes are linked into a queryable graph.
+2. **Chronological Reconstruction:** Multiple related suspicious events form an ordered attack chain that preserves temporal ordering.
+3. **Verifiable Proof:** Every displayed attack stage references at least one valid raw log event.
+4. **Benign Log Quietness:** Ingesting benign background traffic results in a calm status with zero attack chains declared.
+5. **Attack Detection:** Ingesting the multi-stage attack scenario reconstructs the full chain and triggers an active incident.
+6. **Intervention Guidance:** The system identifies an actionable earliest intervention point and recommends appropriate containment.
+7. **Interactive Visualization:** The frontend displays both the chronological timeline and the entity relationship graph.
+8. **Live Demo Stability:** The entire flow runs reliably end-to-end locally without requiring external cloud services.
