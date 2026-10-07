@@ -47,27 +47,44 @@ async def stream_transactions(websocket: WebSocket):
 
     transactions = load_transactions()
 
+    active_timestep = None
+    timestep_count = 0
+
     try:
         for transaction in transactions:
+            # -------------------------------------------------
+            # Track Option B completed timesteps
+            # -------------------------------------------------
+            if active_timestep is None:
+                active_timestep = transaction.time_step
+                timestep_count = 1
+            elif transaction.time_step == active_timestep:
+                timestep_count += 1
+            else:
+                # Timestep completed! Finalize Option B temporal context
+                from backend.ml.temporal import get_temporal_detector
+                det = get_temporal_detector()
+                det.record_timestep(active_timestep, count=timestep_count)
+
+                timestep_event = {
+                    "type": "timestep_completed",
+                    "time_step": active_timestep,
+                    "transaction_count": timestep_count,
+                    "temporal_context": det.score_transaction({
+                        "txId": transaction.tx_id,
+                        "time_step": active_timestep,
+                    }),
+                }
+                await websocket.send_json(timestep_event)
+
+                active_timestep = transaction.time_step
+                timestep_count = 1
 
             # -------------------------------------------------
-            # Temporary ML + temporal values
+            # Analyze transaction via integrated Person 1 ML & temporal
             # -------------------------------------------------
-            #
-            # Person 1's pipeline will eventually provide these.
-            #
-
-            ml_score = 0.87
-            temporal_score = 0.72
-
-            # -------------------------------------------------
-            # Analyze transaction
-            # -------------------------------------------------
-
             result = processor.process(
                 transaction=transaction,
-                ml_score=ml_score,
-                temporal_score=temporal_score,
             )
 
             analysis = result["analysis"]
@@ -75,21 +92,26 @@ async def stream_transactions(websocket: WebSocket):
             # -------------------------------------------------
             # Generate alert if necessary
             # -------------------------------------------------
-
             alert = alert_manager.create_alert(
                 transaction_id=transaction.tx_id,
                 analysis=analysis,
             )
 
             # -------------------------------------------------
-            # Send transaction event
+            # Send transaction event with unified contract
             # -------------------------------------------------
-
             event = {
                 "type": "transaction",
                 "transaction": {
                     "id": transaction.tx_id,
+                    "txId": transaction.tx_id,
                     "time_step": transaction.time_step,
+                    "ml_score": result["ml_score"],
+                    "predicted_class": result["predicted_class"],
+                    "threshold": result["threshold"],
+                    "temporal_score": result["temporal_score"],
+                    "temporal_reasons": result["temporal_reasons"],
+                    "risk_factors": result["risk_factors"],
                 },
                 "analysis": analysis,
             }
@@ -99,23 +121,18 @@ async def stream_transactions(websocket: WebSocket):
             # -------------------------------------------------
             # Send alert event
             # -------------------------------------------------
-
             if alert is not None:
-
                 alert_event = {
                     "type": "alert",
                     "alert": alert,
                 }
-
-                await websocket.send_json(
-                    alert_event
-                )
+                await websocket.send_json(alert_event)
 
             # -------------------------------------------------
             # Demo delay
             # -------------------------------------------------
-
             await asyncio.sleep(0.1)
+
 
     except WebSocketDisconnect:
         print("WebSocket client disconnected")

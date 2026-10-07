@@ -3,13 +3,20 @@ from pathlib import Path
 import pandas as pd
 
 
-DATA_PATH = (
+PRIMARY_DATA_PATH = (
+    Path(__file__).resolve().parents[2]
+    / "data"
+    / "processed"
+    / "txs_edgelist_clean.csv"
+)
+FALLBACK_DATA_PATH = (
     Path(__file__).resolve().parents[2]
     / "data"
     / "raw"
     / "elliptic++"
     / "txs_edgelist_clean.csv"
 )
+DATA_PATH = PRIMARY_DATA_PATH if PRIMARY_DATA_PATH.exists() else FALLBACK_DATA_PATH
 
 
 def load_edges() -> list[tuple[str, str]]:

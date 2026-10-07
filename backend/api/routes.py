@@ -60,16 +60,9 @@ def health_check():
 def get_transaction(tx_id: str):
     """Return analysis for a single transaction."""
 
-    transactions = load_transactions()
+    from backend.streaming.data_loader import get_transaction_by_id
 
-    transaction = next(
-        (
-            tx
-            for tx in transactions
-            if tx.tx_id == tx_id
-        ),
-        None,
-    )
+    transaction = get_transaction_by_id(tx_id)
 
     if transaction is None:
         raise HTTPException(
@@ -77,12 +70,9 @@ def get_transaction(tx_id: str):
             detail=f"Transaction not found: {tx_id}",
         )
 
-    # Temporary values.
-    # These will later come from Person 1's ML pipeline.
+    # Integrated Person 1 ML inference and Option B temporal intelligence
     result = processor.process(
         transaction=transaction,
-        ml_score=0.87,
-        temporal_score=0.72,
     )
 
     alert_manager.create_alert(
