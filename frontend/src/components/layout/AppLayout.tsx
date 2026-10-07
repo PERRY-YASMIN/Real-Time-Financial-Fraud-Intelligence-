@@ -6,6 +6,8 @@ import {
   Network,
 } from "lucide-react";
 
+import { useStream } from "../../context/StreamContext";
+
 const navigation = [
   {
     name: "Dashboard",
@@ -30,6 +32,7 @@ const navigation = [
 ];
 
 export default function AppLayout() {
+  const { status } = useStream();
   return (
     <div className="min-h-screen bg-[#0b0f14] text-gray-100">
       <div className="flex min-h-screen">
@@ -82,9 +85,31 @@ export default function AppLayout() {
               Analyst Workspace
             </span>
 
-            <div className="flex items-center gap-2 text-xs text-green-400">
-              <span className="h-2 w-2 rounded-full bg-green-400" />
-              SYSTEM ONLINE
+            <div className="flex items-center gap-2 text-xs">
+              {status === "connected" && (
+                <div className="flex items-center gap-2 text-green-400">
+                  <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                  SYSTEM ONLINE (STREAMING)
+                </div>
+              )}
+              {status === "connecting" && (
+                <div className="flex items-center gap-2 text-yellow-400">
+                  <span className="h-2 w-2 rounded-full bg-yellow-400 animate-ping" />
+                  CONNECTING...
+                </div>
+              )}
+              {status === "disconnected" && (
+                <div className="flex items-center gap-2 text-gray-400">
+                  <span className="h-2 w-2 rounded-full bg-gray-500" />
+                  OFFLINE (RECONNECTING)
+                </div>
+              )}
+              {status === "error" && (
+                <div className="flex items-center gap-2 text-red-400">
+                  <span className="h-2 w-2 rounded-full bg-red-400" />
+                  DISCONNECTED
+                </div>
+              )}
             </div>
           </header>
 

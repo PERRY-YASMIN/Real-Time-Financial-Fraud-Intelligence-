@@ -18,10 +18,38 @@ export interface Alert {
 
 export interface Transaction {
   id: string;
+  txId?: string;
   time_step: number;
-  amount: number;
+  amount?: number;
   risk_score: number;
   risk_level: RiskLevel;
+  ml_score?: number;
+  predicted_class?: "ILLICIT" | "LICIT";
+  threshold?: number;
+  temporal_score?: number;
+  temporal_reasons?: string[];
+  graph_score?: number;
+  evidence?: Evidence[];
+  recommended_action?: string;
+}
+
+export interface BackendTransactionPayload {
+  transaction_id?: string;
+  txId?: string;
+  id?: string;
+  time_step: number;
+  ml_score: number;
+  predicted_class: "ILLICIT" | "LICIT";
+  threshold: number;
+  temporal_score: number;
+  temporal_reasons: string[];
+  risk_factors?: string[];
+  analysis?: {
+    risk_score: number;
+    risk_level: RiskLevel;
+    evidence: Evidence[];
+    recommended_action: string;
+  };
 }
 
 export interface NetworkNode {

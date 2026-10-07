@@ -10,6 +10,7 @@ import {
 } from "recharts";
 
 import { mockDashboard } from "../../../mocks/data";
+import { useStream } from "../../../context/StreamContext";
 
 const COLORS = {
   LOW: "#22c55e",
@@ -18,8 +19,26 @@ const COLORS = {
   CRITICAL: "#ef4444",
 };
 
-export default function RiskDistribution() {
-  const distribution = mockDashboard.risk_distribution;
+interface RiskDistributionProps {
+  distribution?: {
+    LOW: number;
+    MEDIUM: number;
+    HIGH: number;
+    CRITICAL: number;
+  };
+}
+
+export default function RiskDistribution({ distribution: propDistribution }: RiskDistributionProps) {
+  const { dashboard } = useStream();
+  const distribution =
+    propDistribution ||
+    (dashboard.risk_distribution.LOW +
+      dashboard.risk_distribution.MEDIUM +
+      dashboard.risk_distribution.HIGH +
+      dashboard.risk_distribution.CRITICAL >
+    0
+      ? dashboard.risk_distribution
+      : mockDashboard.risk_distribution);
 
   const data = [
     {

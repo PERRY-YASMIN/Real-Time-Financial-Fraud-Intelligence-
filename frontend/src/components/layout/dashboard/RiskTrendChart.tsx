@@ -9,9 +9,20 @@ import {
 } from "recharts";
 
 import { mockDashboard } from "../../../mocks/data";
+import { useStream } from "../../../context/StreamContext";
+import type { RiskTrendPoint } from "../../../types";
 
-export default function RiskTrendChart() {
-  const data = mockDashboard.risk_trend;
+interface RiskTrendChartProps {
+  data?: RiskTrendPoint[];
+}
+
+export default function RiskTrendChart({ data: propData }: RiskTrendChartProps) {
+  const { dashboard } = useStream();
+  const data =
+    propData ||
+    (dashboard.risk_trend && dashboard.risk_trend.length > 0
+      ? dashboard.risk_trend
+      : mockDashboard.risk_trend);
 
   return (
     <div className="h-64 w-full">

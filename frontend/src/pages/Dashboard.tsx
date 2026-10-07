@@ -3,10 +3,15 @@ import RiskTrendChart from "../components/layout/dashboard/RiskTrendChart";
 import RiskDistribution from "../components/layout/dashboard/RiskDistribution";
 import RecentAlerts from "../components/layout/dashboard/RecentAlerts";
 import { mockDashboard } from "../mocks/data";
+import { useStream } from "../context/StreamContext";
 
 
 export default function Dashboard() {
-  const data = mockDashboard;
+  const { dashboard } = useStream();
+  const data =
+    dashboard.total_transactions > 0 || dashboard.active_alerts > 0
+      ? dashboard
+      : mockDashboard;
 
   return (
     <div className="space-y-6">

@@ -1,5 +1,7 @@
 import { AlertTriangle, ArrowRight } from "lucide-react";
-import { mockDashboard } from "../../../mocks/data";
+import { Link } from "react-router-dom";
+import type { Alert } from "../../../types";
+import { useStream } from "../../../context/StreamContext";
 
 const riskStyles = {
   LOW: "text-green-400 bg-green-400/10 border-green-400/20",
@@ -8,8 +10,13 @@ const riskStyles = {
   CRITICAL: "text-red-400 bg-red-400/10 border-red-400/20",
 };
 
-export default function RecentAlerts() {
-  const alerts = mockDashboard.recent_alerts;
+interface RecentAlertsProps {
+  alerts?: Alert[];
+}
+
+export default function RecentAlerts({ alerts: propAlerts }: RecentAlertsProps) {
+  const { alerts: streamAlerts } = useStream();
+  const alerts = propAlerts || (streamAlerts.length > 0 ? streamAlerts : []);
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-800 bg-[#0f141b]">
@@ -26,10 +33,10 @@ export default function RecentAlerts() {
           </p>
         </div>
 
-        <button className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
+        <Link to="/alerts" className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300">
           View all
           <ArrowRight size={14} />
-        </button>
+        </Link>
       </div>
 
       {/* Table */}
@@ -61,12 +68,18 @@ export default function RecentAlerts() {
           </thead>
 
           <tbody className="divide-y divide-gray-800">
-
-            {alerts.map((alert) => (
-              <tr
-                key={alert.id}
-                className="transition-colors hover:bg-white/[0.02]"
-              >
+            {alerts.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-5 py-8 text-center text-xs text-gray-500">
+                  Awaiting suspicious transaction alerts from real-time stream...
+                </td>
+              </tr>
+            ) : (
+              alerts.map((alert) => (
+                <tr
+                  key={alert.id}
+                  className="transition-colors hover:bg-white/[0.02]"
+                >
 
                 {/* Transaction */}
                 <td className="px-5 py-4">
@@ -141,7 +154,7 @@ export default function RecentAlerts() {
                 </td>
 
               </tr>
-            ))}
+            )))}
 
           </tbody>
         </table>

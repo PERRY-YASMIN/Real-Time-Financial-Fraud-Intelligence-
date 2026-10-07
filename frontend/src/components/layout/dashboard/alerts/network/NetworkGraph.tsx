@@ -1,10 +1,50 @@
+import { useEffect, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import type { StylesheetJsonBlock } from "cytoscape";
 import { mockNetwork } from "../../../../../mocks/data";
+import { api } from "../../../../../services/api";
+import type { NetworkData } from "../../../../../types";
 
-export default function NetworkGraph() {
+interface NetworkGraphProps {
+  txId?: string;
+  networkData?: NetworkData;
+}
+
+export default function NetworkGraph({ txId, networkData: propData }: NetworkGraphProps) {
+  const [data, setData] = useState<NetworkData>(propData || mockNetwork);
+  const [loading, setLoading] = useState<boolean>(!propData);
+
+  useEffect(() => {
+    if (propData) {
+      setData(propData);
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    async function loadNetwork() {
+      try {
+        setLoading(true);
+        const result = await api.getNetwork(txId || "3321", 1);
+        if (!isMounted) return;
+        if (result && result.nodes && result.nodes.length > 0) {
+          setData(result);
+        }
+      } catch (err) {
+        console.warn("Failed to load real network data from backend, falling back to cached network:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadNetwork();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [txId, propData]);
+
   const elements = [
-    ...mockNetwork.nodes.map((node) => ({
+    ...data.nodes.map((node) => ({
       data: {
         id: node.id,
         label: `${node.label}\nRisk: ${node.risk_score}`,
@@ -12,7 +52,7 @@ export default function NetworkGraph() {
       },
     })),
 
-    ...mockNetwork.edges.map((edge) => ({
+    ...data.edges.map((edge) => ({
       data: {
         id: edge.id,
         source: edge.source,
@@ -79,7 +119,12 @@ export default function NetworkGraph() {
   ] as StylesheetJsonBlock[];
 
   return (
-    <div className="h-[600px] w-full overflow-hidden rounded-lg border border-gray-800 bg-[#0b1016]">
+    <div className="relative h-[600px] w-full overflow-hidden rounded-lg border border-gray-800 bg-[#0b1016]">
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0b1016]/80 text-xs text-blue-400">
+          Loading topology from backend...
+        </div>
+      )}
       <CytoscapeComponent
         elements={elements}
         stylesheet={stylesheet as any}
