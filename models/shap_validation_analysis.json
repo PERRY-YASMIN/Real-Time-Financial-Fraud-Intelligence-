@@ -1,0 +1,747 @@
+{
+  "shap_version": "0.52.0",
+  "model_path": "models/xgboost_baseline.json",
+  "number_of_model_features": 182,
+  "validation_total_rows": 2989,
+  "validation_sample_size": 2000,
+  "random_seed": 42,
+  "base_value_log_odds": 0.380897,
+  "top_20_shap_features": [
+    {
+      "rank": 1,
+      "feature": "size",
+      "mean_abs_shap": 0.7615236043930054,
+      "mean_shap": -0.23972801864147186,
+      "feature_group": "Augmented"
+    },
+    {
+      "rank": 2,
+      "feature": "Local_feature_53",
+      "mean_abs_shap": 0.6819578409194946,
+      "mean_shap": -0.34384235739707947,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 3,
+      "feature": "Local_feature_59",
+      "mean_abs_shap": 0.5491865873336792,
+      "mean_shap": 0.001961247995495796,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 4,
+      "feature": "Local_feature_58",
+      "mean_abs_shap": 0.4647994637489319,
+      "mean_shap": -0.3791753053665161,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 5,
+      "feature": "Local_feature_52",
+      "mean_abs_shap": 0.4138529896736145,
+      "mean_shap": -0.324826180934906,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 6,
+      "feature": "Local_feature_3",
+      "mean_abs_shap": 0.386930912733078,
+      "mean_shap": -0.10480637103319168,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 7,
+      "feature": "Local_feature_90",
+      "mean_abs_shap": 0.342642217874527,
+      "mean_shap": -0.015580283477902412,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 8,
+      "feature": "Aggregate_feature_32",
+      "mean_abs_shap": 0.3094169795513153,
+      "mean_shap": -0.22856692969799042,
+      "feature_group": "Aggregate"
+    },
+    {
+      "rank": 9,
+      "feature": "Local_feature_46",
+      "mean_abs_shap": 0.2798578143119812,
+      "mean_shap": -0.06386324763298035,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 10,
+      "feature": "Local_feature_16",
+      "mean_abs_shap": 0.23988789319992065,
+      "mean_shap": -0.20141160488128662,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 11,
+      "feature": "Aggregate_feature_70",
+      "mean_abs_shap": 0.22638295590877533,
+      "mean_shap": -0.026718951761722565,
+      "feature_group": "Aggregate"
+    },
+    {
+      "rank": 12,
+      "feature": "Local_feature_41",
+      "mean_abs_shap": 0.21812409162521362,
+      "mean_shap": -0.1119600236415863,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 13,
+      "feature": "Aggregate_feature_68",
+      "mean_abs_shap": 0.2158859670162201,
+      "mean_shap": -0.027084097266197205,
+      "feature_group": "Aggregate"
+    },
+    {
+      "rank": 14,
+      "feature": "Local_feature_55",
+      "mean_abs_shap": 0.19102992117404938,
+      "mean_shap": -0.13863204419612885,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 15,
+      "feature": "Aggregate_feature_13",
+      "mean_abs_shap": 0.16723519563674927,
+      "mean_shap": -0.15726779401302338,
+      "feature_group": "Aggregate"
+    },
+    {
+      "rank": 16,
+      "feature": "Local_feature_47",
+      "mean_abs_shap": 0.1590898036956787,
+      "mean_shap": -0.03361841291189194,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 17,
+      "feature": "Local_feature_2",
+      "mean_abs_shap": 0.15797525644302368,
+      "mean_shap": 0.10463087260723114,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 18,
+      "feature": "Local_feature_5",
+      "mean_abs_shap": 0.15028464794158936,
+      "mean_shap": -0.057298433035612106,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 19,
+      "feature": "Local_feature_65",
+      "mean_abs_shap": 0.14782389998435974,
+      "mean_shap": -0.05302511900663376,
+      "feature_group": "Local"
+    },
+    {
+      "rank": 20,
+      "feature": "Local_feature_76",
+      "mean_abs_shap": 0.14615269005298615,
+      "mean_shap": -0.1244874894618988,
+      "feature_group": "Local"
+    }
+  ],
+  "feature_group_importance": {
+    "Local": {
+      "feature_count": 93,
+      "total_abs_shap": 7.161748,
+      "percentage_share": 58.86,
+      "mean_per_feature": 0.077008
+    },
+    "Aggregate": {
+      "feature_count": 72,
+      "total_abs_shap": 3.683743,
+      "percentage_share": 30.27,
+      "mean_per_feature": 0.051163
+    },
+    "Augmented": {
+      "feature_count": 17,
+      "total_abs_shap": 1.322359,
+      "percentage_share": 10.87,
+      "mean_per_feature": 0.077786
+    }
+  },
+  "class_specific_shap_summaries": {
+    "illicit": {
+      "sample_count": 327,
+      "top_10_abs_contribution": [
+        {
+          "feature": "size",
+          "mean_shap": 1.175939679145813,
+          "mean_abs_shap": 1.3867404460906982,
+          "feature_group": "Augmented"
+        },
+        {
+          "feature": "Local_feature_53",
+          "mean_shap": 0.7045093774795532,
+          "mean_abs_shap": 0.7097779512405396,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_90",
+          "mean_shap": 0.5525656938552856,
+          "mean_abs_shap": 0.6909900903701782,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_59",
+          "mean_shap": 0.4513684809207916,
+          "mean_abs_shap": 0.451852411031723,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_46",
+          "mean_shap": 0.3484804928302765,
+          "mean_abs_shap": 0.4448243975639343,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_3",
+          "mean_shap": 0.16198524832725525,
+          "mean_abs_shap": 0.32966557145118713,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Aggregate_feature_70",
+          "mean_shap": 0.09372919052839279,
+          "mean_abs_shap": 0.2552420496940613,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "Local_feature_52",
+          "mean_shap": 0.04013577476143837,
+          "mean_abs_shap": 0.21936114132404327,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_47",
+          "mean_shap": 0.1937667429447174,
+          "mean_abs_shap": 0.1990569531917572,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Aggregate_feature_34",
+          "mean_shap": 0.05283926799893379,
+          "mean_abs_shap": 0.1934298872947693,
+          "feature_group": "Aggregate"
+        }
+      ],
+      "top_5_positive_push": [
+        {
+          "feature": "size",
+          "mean_shap": 1.175939679145813,
+          "mean_abs_shap": 1.3867404460906982,
+          "feature_group": "Augmented"
+        },
+        {
+          "feature": "Local_feature_53",
+          "mean_shap": 0.7045093774795532,
+          "mean_abs_shap": 0.7097779512405396,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_90",
+          "mean_shap": 0.5525656938552856,
+          "mean_abs_shap": 0.6909900903701782,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_59",
+          "mean_shap": 0.4513684809207916,
+          "mean_abs_shap": 0.451852411031723,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_46",
+          "mean_shap": 0.3484804928302765,
+          "mean_abs_shap": 0.4448243975639343,
+          "feature_group": "Local"
+        }
+      ],
+      "top_5_negative_push": [
+        {
+          "feature": "Local_feature_1",
+          "mean_shap": -0.12582899630069733,
+          "mean_abs_shap": 0.1671719253063202,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Aggregate_feature_13",
+          "mean_shap": -0.12259579449892044,
+          "mean_abs_shap": 0.1385471522808075,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "fees",
+          "mean_shap": -0.11947860568761826,
+          "mean_abs_shap": 0.12130213528871536,
+          "feature_group": "Augmented"
+        },
+        {
+          "feature": "Aggregate_feature_4",
+          "mean_shap": -0.10383583605289459,
+          "mean_abs_shap": 0.11287058144807816,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "Aggregate_feature_19",
+          "mean_shap": -0.053771406412124634,
+          "mean_abs_shap": 0.05541794002056122,
+          "feature_group": "Aggregate"
+        }
+      ]
+    },
+    "licit": {
+      "sample_count": 1673,
+      "top_10_abs_contribution": [
+        {
+          "feature": "Local_feature_53",
+          "mean_shap": -0.5487501621246338,
+          "mean_abs_shap": 0.6765210628509521,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "size",
+          "mean_shap": -0.5164306163787842,
+          "mean_abs_shap": 0.6393194198608398,
+          "feature_group": "Augmented"
+        },
+        {
+          "feature": "Local_feature_59",
+          "mean_shap": -0.08587854355573654,
+          "mean_abs_shap": 0.5682113766670227,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_58",
+          "mean_shap": -0.4690101146697998,
+          "mean_abs_shap": 0.5304585099220276,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_52",
+          "mean_shap": -0.3961605429649353,
+          "mean_abs_shap": 0.4518681764602661,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_3",
+          "mean_shap": -0.15695279836654663,
+          "mean_abs_shap": 0.3981238007545471,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Aggregate_feature_32",
+          "mean_shap": -0.2836959660053253,
+          "mean_abs_shap": 0.35305729508399963,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "Local_feature_90",
+          "mean_shap": -0.12662844359874725,
+          "mean_abs_shap": 0.2745552062988281,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_16",
+          "mean_shap": -0.24087098240852356,
+          "mean_abs_shap": 0.2739410102367401,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_46",
+          "mean_shap": -0.14445903897285461,
+          "mean_abs_shap": 0.2476135939359665,
+          "feature_group": "Local"
+        }
+      ],
+      "top_5_positive_push": [
+        {
+          "feature": "Local_feature_2",
+          "mean_shap": 0.10411511361598969,
+          "mean_abs_shap": 0.1649286448955536,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Aggregate_feature_7",
+          "mean_shap": 0.09353471547365189,
+          "mean_abs_shap": 0.1015753448009491,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "Aggregate_feature_10",
+          "mean_shap": 0.04555390030145645,
+          "mean_abs_shap": 0.04901351034641266,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "Aggregate_feature_46",
+          "mean_shap": 0.03209594264626503,
+          "mean_abs_shap": 0.05063497647643089,
+          "feature_group": "Aggregate"
+        },
+        {
+          "feature": "Aggregate_feature_31",
+          "mean_shap": 0.003640132723376155,
+          "mean_abs_shap": 0.012406352907419205,
+          "feature_group": "Aggregate"
+        }
+      ],
+      "top_5_negative_push": [
+        {
+          "feature": "Local_feature_53",
+          "mean_shap": -0.5487501621246338,
+          "mean_abs_shap": 0.6765210628509521,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "size",
+          "mean_shap": -0.5164306163787842,
+          "mean_abs_shap": 0.6393194198608398,
+          "feature_group": "Augmented"
+        },
+        {
+          "feature": "Local_feature_58",
+          "mean_shap": -0.4690101146697998,
+          "mean_abs_shap": 0.5304585099220276,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Local_feature_52",
+          "mean_shap": -0.3961605429649353,
+          "mean_abs_shap": 0.4518681764602661,
+          "feature_group": "Local"
+        },
+        {
+          "feature": "Aggregate_feature_32",
+          "mean_shap": -0.2836959660053253,
+          "mean_abs_shap": 0.35305729508399963,
+          "feature_group": "Aggregate"
+        }
+      ]
+    }
+  },
+  "representative_transaction_explanations": [
+    {
+      "case_type": "high_confidence_tp",
+      "case_description": "High-Confidence True Positive (Illicit)",
+      "txId": 383048748,
+      "time_step": 31,
+      "actual_label": 1,
+      "actual_class": "ILLICIT",
+      "predicted_probability": 0.999946,
+      "predicted_class": "ILLICIT",
+      "base_value_log_odds": 0.380897,
+      "top_5_positive_shap_contributors": [
+        {
+          "feature": "size",
+          "value": 191.0,
+          "shap_value": 2.1682,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_90",
+          "value": -0.6942,
+          "shap_value": 0.9971,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_53",
+          "value": -0.4883,
+          "shap_value": 0.8154,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_34",
+          "value": -0.097,
+          "shap_value": 0.5216,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_68",
+          "value": -0.1067,
+          "shap_value": 0.4569,
+          "direction": "increases_illicit_risk"
+        }
+      ],
+      "top_5_negative_shap_contributors": [
+        {
+          "feature": "Aggregate_feature_13",
+          "value": -0.0738,
+          "shap_value": -0.1516,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "fees",
+          "value": 0.0003,
+          "shap_value": -0.1401,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_45",
+          "value": -0.3018,
+          "shap_value": -0.0779,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_80",
+          "value": -0.1691,
+          "shap_value": -0.0648,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_16",
+          "value": -0.1062,
+          "shap_value": -0.0648,
+          "direction": "decreases_illicit_risk"
+        }
+      ]
+    },
+    {
+      "case_type": "high_confidence_tn",
+      "case_description": "High-Confidence True Negative (Licit)",
+      "txId": 381762806,
+      "time_step": 31,
+      "actual_label": 0,
+      "actual_class": "LICIT",
+      "predicted_probability": 1.6e-05,
+      "predicted_class": "LICIT",
+      "base_value_log_odds": 0.380897,
+      "top_5_positive_shap_contributors": [
+        {
+          "feature": "Aggregate_feature_32",
+          "value": -0.1196,
+          "shap_value": 0.2137,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_34",
+          "value": -0.1153,
+          "shap_value": 0.1081,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_15",
+          "value": 0.5246,
+          "shap_value": 0.0764,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_61",
+          "value": -0.0605,
+          "shap_value": 0.0716,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_7",
+          "value": 0.4784,
+          "shap_value": 0.0669,
+          "direction": "increases_illicit_risk"
+        }
+      ],
+      "top_5_negative_shap_contributors": [
+        {
+          "feature": "Local_feature_59",
+          "value": -0.0728,
+          "shap_value": -2.0501,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "size",
+          "value": 520.0,
+          "shap_value": -0.9287,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_53",
+          "value": 2.403,
+          "shap_value": -0.8331,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_90",
+          "value": 1.3387,
+          "shap_value": -0.5411,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_52",
+          "value": 0.6004,
+          "shap_value": -0.5237,
+          "direction": "decreases_illicit_risk"
+        }
+      ]
+    },
+    {
+      "case_type": "false_positive",
+      "case_description": "False Positive (Licit predicted as Illicit)",
+      "txId": 386120617,
+      "time_step": 31,
+      "actual_label": 0,
+      "actual_class": "LICIT",
+      "predicted_probability": 0.997485,
+      "predicted_class": "ILLICIT",
+      "base_value_log_odds": 0.380897,
+      "top_5_positive_shap_contributors": [
+        {
+          "feature": "size",
+          "value": 192.0,
+          "shap_value": 1.6665,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_90",
+          "value": -0.6942,
+          "shap_value": 1.002,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_53",
+          "value": -0.4882,
+          "shap_value": 0.8808,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_68",
+          "value": -0.1067,
+          "shap_value": 0.5207,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_70",
+          "value": -0.1837,
+          "shap_value": 0.3628,
+          "direction": "increases_illicit_risk"
+        }
+      ],
+      "top_5_negative_shap_contributors": [
+        {
+          "feature": "Local_feature_76",
+          "value": -0.0954,
+          "shap_value": -0.8881,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_79",
+          "value": -0.2638,
+          "shap_value": -0.3219,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_77",
+          "value": -0.2644,
+          "shap_value": -0.2812,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_44",
+          "value": 0.2367,
+          "shap_value": -0.1395,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_13",
+          "value": -0.1613,
+          "shap_value": -0.1253,
+          "direction": "decreases_illicit_risk"
+        }
+      ]
+    },
+    {
+      "case_type": "false_negative",
+      "case_description": "False Negative (Illicit predicted as Licit)",
+      "txId": 92095997,
+      "time_step": 33,
+      "actual_label": 1,
+      "actual_class": "ILLICIT",
+      "predicted_probability": 0.051842,
+      "predicted_class": "LICIT",
+      "base_value_log_odds": 0.380897,
+      "top_5_positive_shap_contributors": [
+        {
+          "feature": "Local_feature_90",
+          "value": -0.6942,
+          "shap_value": 0.7578,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_59",
+          "value": -0.1729,
+          "shap_value": 0.5072,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_3",
+          "value": 1.0186,
+          "shap_value": 0.4089,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_34",
+          "value": -0.1281,
+          "shap_value": 0.305,
+          "direction": "increases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_7",
+          "value": 0.6079,
+          "shap_value": 0.2076,
+          "direction": "increases_illicit_risk"
+        }
+      ],
+      "top_5_negative_shap_contributors": [
+        {
+          "feature": "size",
+          "value": 520.0,
+          "shap_value": -0.688,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_53",
+          "value": -0.0883,
+          "shap_value": -0.6682,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_41",
+          "value": -0.2389,
+          "shap_value": -0.3697,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Local_feature_47",
+          "value": -0.2427,
+          "shap_value": -0.2278,
+          "direction": "decreases_illicit_risk"
+        },
+        {
+          "feature": "Aggregate_feature_39",
+          "value": 0.0423,
+          "shap_value": -0.2194,
+          "direction": "decreases_illicit_risk"
+        }
+      ]
+    }
+  ],
+  "shap_sanity_checks": {
+    "all_top_features_in_model": true,
+    "metadata_cols_absent": true,
+    "no_impossible_feature_names": true,
+    "shap_values_finite": true,
+    "reconstruction_approx_exact": true,
+    "max_reconstruction_difference": 9.5367431640625e-06,
+    "aggregate_features_present_in_top": true,
+    "augmented_blockchain_features_present_in_top": true,
+    "no_suspicious_target_features": true,
+    "overall_sanity": "PASS"
+  },
+  "final_test_used": false,
+  "timestamp": "2026-10-07T08:01:26.661320+00:00"
+}

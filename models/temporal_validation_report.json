@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-10-07T08:28:33.714293+00:00",
+  "stage": "STAGE 9 \u2014 TEMPORAL INTELLIGENCE / ANOMALY DETECTION",
+  "module_path": "backend/ml/temporal.py",
+  "parameters": {
+    "window_size": 3,
+    "sensitivity": 0.4,
+    "cold_start_threshold": 3,
+    "squashing_function": "tanh(0.4 * max(0, z))"
+  },
+  "available_temporal_signals": [
+    "time_step (discrete 3-hour blockchain snapshot, timesteps 1\u201349)",
+    "transaction counts per time_step (network velocity / activity intensity)",
+    "transaction-level BTC volume metrics (total_BTC, in_BTC, out_BTC)",
+    "transaction-level structural metrics (size, fees, in/out degrees)",
+    "transaction edgelist relationships (within-timestep directed graph)"
+  ],
+  "signals_not_available": [
+    "wallet IDs / actor addresses (actor dataset files were not acquired)",
+    "persistent user / account / entity identifiers across time",
+    "continuous timestamps with seconds/minutes (only 3-hour discrete time_step)",
+    "merchant / device / IP / geographic tags",
+    "real-time unconfirmed mempool broadcast streams"
+  ],
+  "temporal_method": {
+    "type": "Causal Rolling Baseline Anomaly Detection (Unsupervised)",
+    "rolling_window_formula": "historical_mean_t = mean(N_{t-3}, N_{t-2}, N_{t-1})",
+    "historical_std_formula": "historical_std_t = std(N_{t-3}, N_{t-2}, N_{t-1}, ddof=1)",
+    "zscore_formula": "z_{vol, t} = (N_t - historical_mean_t) / (historical_std_t + epsilon)",
+    "squashing_formula": "temporal_score = tanh(0.4 * max(0, z)) in [0.0, 1.0]",
+    "cold_start_policy": "For t <= 3 (insufficient historical context), temporal_score = 0.0 with neutral explanatory string"
+  },
+  "causality_verification": {
+    "lookback_policy": "Strictly historical: time_step t only queries [t - 3, t - 1]",
+    "future_timesteps_accessed": false,
+    "future_data_perturbation_invariant": true,
+    "label_independent": true,
+    "xgboost_independent": true,
+    "causally_valid_for_sequential_replay": true
+  },
+  "validation_evaluation": {
+    "validation_row_count": 2989,
+    "score_min": 0.0,
+    "score_max": 1.0,
+    "score_mean": 0.291903,
+    "nan_count": 0,
+    "inf_count": 0,
+    "timestep_breakdown": {
+      "timestep_31": {
+        "time_step": 31,
+        "transaction_count": 710,
+        "mean_temporal_score": 0.083722,
+        "max_temporal_score": 1.0,
+        "velocity_zscore": 0.1071,
+        "primary_reason": "Transaction activity is within normal historical baseline range"
+      },
+      "timestep_32": {
+        "time_step": 32,
+        "transaction_count": 1323,
+        "mean_temporal_score": 0.555078,
+        "max_temporal_score": 1.0,
+        "velocity_zscore": 1.5543,
+        "primary_reason": "Elevated transaction velocity relative to recent historical baseline"
+      },
+      "timestep_33": {
+        "time_step": 33,
+        "transaction_count": 441,
+        "mean_temporal_score": 0.047575,
+        "max_temporal_score": 1.0,
+        "velocity_zscore": -0.9839,
+        "primary_reason": "Transaction activity is within normal historical baseline range"
+      },
+      "timestep_34": {
+        "time_step": 34,
+        "transaction_count": 515,
+        "mean_temporal_score": 0.11205,
+        "max_temporal_score": 1.0,
+        "velocity_zscore": -0.685,
+        "primary_reason": "Transaction activity is within normal historical baseline range"
+      }
+    }
+  },
+  "test_results": {
+    "test_suite": "tests/test_temporal_anomaly.py",
+    "tests_passed": 12,
+    "tests_failed": 0,
+    "all_tests_passed": true
+  },
+  "final_test_used": false,
+  "causally_valid_for_sequential_replay": "YES"
+}
