@@ -1,0 +1,571 @@
+{
+  "metadata": {
+    "dataset_name": "Elliptic++ (Transaction Graph)",
+    "report_type": "Data Quality and Validation Report",
+    "generated_by": "Person 1 - ML/Data Scientist"
+  },
+  "files_inspected": {
+    "txs_features.csv": {
+      "raw_path": "data/raw/txs_features.csv",
+      "processed_path": "data/processed/txs_features_clean.csv",
+      "rows": 203769,
+      "columns": 184,
+      "duplicate_rows": 0,
+      "duplicate_txId": 0,
+      "invalid_txId_count": 0,
+      "columns_with_nulls": 17,
+      "total_null_entries": 16405,
+      "null_details": {
+        "in_txs_degree": 965,
+        "out_txs_degree": 965,
+        "total_BTC": 965,
+        "fees": 965,
+        "size": 965,
+        "num_input_addresses": 965,
+        "num_output_addresses": 965,
+        "in_BTC_min": 965,
+        "in_BTC_max": 965,
+        "in_BTC_mean": 965,
+        "in_BTC_median": 965,
+        "in_BTC_total": 965,
+        "out_BTC_min": 965,
+        "out_BTC_max": 965,
+        "out_BTC_mean": 965,
+        "out_BTC_median": 965,
+        "out_BTC_total": 965
+      },
+      "infinite_values_count": 0
+    },
+    "txs_classes.csv": {
+      "raw_path": "data/raw/txs_classes.csv",
+      "processed_path": "data/processed/txs_classes_clean.csv",
+      "rows": 203769,
+      "columns": 2,
+      "duplicate_rows": 0,
+      "duplicate_txId": 0,
+      "invalid_txId_count": 0,
+      "null_count": 0,
+      "classes_present": [
+        3,
+        2,
+        1
+      ],
+      "class_distribution": {
+        "3": 157205,
+        "2": 42019,
+        "1": 4545
+      }
+    },
+    "txs_edgelist.csv": {
+      "raw_path": "data/raw/txs_edgelist.csv",
+      "processed_path": "data/processed/txs_edgelist_clean.csv",
+      "rows": 234355,
+      "columns": 2,
+      "duplicate_rows": 0,
+      "self_loops": 0,
+      "null_count": 0,
+      "invalid_endpoint_count": 0
+    }
+  },
+  "consistency_checks": {
+    "feature_vs_class_txIds": {
+      "feature_txIds_count": 203769,
+      "class_txIds_count": 203769,
+      "unmatched_feature_txIds": 0,
+      "unmatched_class_txIds": 0,
+      "exact_row_order_match": true
+    },
+    "edgelist_vs_nodes": {
+      "unique_nodes_in_edgelist": 203769,
+      "sources_missing_from_features": 0,
+      "targets_missing_from_features": 0,
+      "feature_nodes_not_in_edgelist": 0,
+      "cross_timestep_edges_count": 0
+    }
+  },
+  "class_semantics": {
+    "1": {
+      "label": "illicit",
+      "count": 4545,
+      "pct_of_total": 2.23,
+      "pct_of_labeled": 9.76
+    },
+    "2": {
+      "label": "licit",
+      "count": 42019,
+      "pct_of_total": 20.62,
+      "pct_of_labeled": 90.24
+    },
+    "3": {
+      "label": "unknown",
+      "count": 157205,
+      "pct_of_total": 77.15,
+      "pct_of_labeled": null
+    }
+  },
+  "timestep_range": {
+    "min_timestep": 1,
+    "max_timestep": 49,
+    "num_unique_timesteps": 49,
+    "timestep_breakdown": [
+      {
+        "timestep": 1,
+        "total_txs": 7880,
+        "class_1_illicit": 17,
+        "class_2_licit": 2130,
+        "class_3_unknown": 5733,
+        "labeled_txs": 2147,
+        "illicit_pct_of_labeled": 0.79
+      },
+      {
+        "timestep": 2,
+        "total_txs": 4544,
+        "class_1_illicit": 18,
+        "class_2_licit": 1099,
+        "class_3_unknown": 3427,
+        "labeled_txs": 1117,
+        "illicit_pct_of_labeled": 1.61
+      },
+      {
+        "timestep": 3,
+        "total_txs": 6621,
+        "class_1_illicit": 11,
+        "class_2_licit": 1268,
+        "class_3_unknown": 5342,
+        "labeled_txs": 1279,
+        "illicit_pct_of_labeled": 0.86
+      },
+      {
+        "timestep": 4,
+        "total_txs": 5693,
+        "class_1_illicit": 30,
+        "class_2_licit": 1410,
+        "class_3_unknown": 4253,
+        "labeled_txs": 1440,
+        "illicit_pct_of_labeled": 2.08
+      },
+      {
+        "timestep": 5,
+        "total_txs": 6803,
+        "class_1_illicit": 8,
+        "class_2_licit": 1874,
+        "class_3_unknown": 4921,
+        "labeled_txs": 1882,
+        "illicit_pct_of_labeled": 0.43
+      },
+      {
+        "timestep": 6,
+        "total_txs": 4328,
+        "class_1_illicit": 5,
+        "class_2_licit": 480,
+        "class_3_unknown": 3843,
+        "labeled_txs": 485,
+        "illicit_pct_of_labeled": 1.03
+      },
+      {
+        "timestep": 7,
+        "total_txs": 6048,
+        "class_1_illicit": 102,
+        "class_2_licit": 1101,
+        "class_3_unknown": 4845,
+        "labeled_txs": 1203,
+        "illicit_pct_of_labeled": 8.48
+      },
+      {
+        "timestep": 8,
+        "total_txs": 4457,
+        "class_1_illicit": 67,
+        "class_2_licit": 1098,
+        "class_3_unknown": 3292,
+        "labeled_txs": 1165,
+        "illicit_pct_of_labeled": 5.75
+      },
+      {
+        "timestep": 9,
+        "total_txs": 4996,
+        "class_1_illicit": 248,
+        "class_2_licit": 530,
+        "class_3_unknown": 4218,
+        "labeled_txs": 778,
+        "illicit_pct_of_labeled": 31.88
+      },
+      {
+        "timestep": 10,
+        "total_txs": 6727,
+        "class_1_illicit": 18,
+        "class_2_licit": 954,
+        "class_3_unknown": 5755,
+        "labeled_txs": 972,
+        "illicit_pct_of_labeled": 1.85
+      },
+      {
+        "timestep": 11,
+        "total_txs": 4296,
+        "class_1_illicit": 131,
+        "class_2_licit": 565,
+        "class_3_unknown": 3600,
+        "labeled_txs": 696,
+        "illicit_pct_of_labeled": 18.82
+      },
+      {
+        "timestep": 12,
+        "total_txs": 2047,
+        "class_1_illicit": 16,
+        "class_2_licit": 490,
+        "class_3_unknown": 1541,
+        "labeled_txs": 506,
+        "illicit_pct_of_labeled": 3.16
+      },
+      {
+        "timestep": 13,
+        "total_txs": 4528,
+        "class_1_illicit": 291,
+        "class_2_licit": 518,
+        "class_3_unknown": 3719,
+        "labeled_txs": 809,
+        "illicit_pct_of_labeled": 35.97
+      },
+      {
+        "timestep": 14,
+        "total_txs": 2022,
+        "class_1_illicit": 43,
+        "class_2_licit": 374,
+        "class_3_unknown": 1605,
+        "labeled_txs": 417,
+        "illicit_pct_of_labeled": 10.31
+      },
+      {
+        "timestep": 15,
+        "total_txs": 3639,
+        "class_1_illicit": 147,
+        "class_2_licit": 471,
+        "class_3_unknown": 3021,
+        "labeled_txs": 618,
+        "illicit_pct_of_labeled": 23.79
+      },
+      {
+        "timestep": 16,
+        "total_txs": 2975,
+        "class_1_illicit": 128,
+        "class_2_licit": 402,
+        "class_3_unknown": 2445,
+        "labeled_txs": 530,
+        "illicit_pct_of_labeled": 24.15
+      },
+      {
+        "timestep": 17,
+        "total_txs": 3385,
+        "class_1_illicit": 99,
+        "class_2_licit": 712,
+        "class_3_unknown": 2574,
+        "labeled_txs": 811,
+        "illicit_pct_of_labeled": 12.21
+      },
+      {
+        "timestep": 18,
+        "total_txs": 1976,
+        "class_1_illicit": 52,
+        "class_2_licit": 337,
+        "class_3_unknown": 1587,
+        "labeled_txs": 389,
+        "illicit_pct_of_labeled": 13.37
+      },
+      {
+        "timestep": 19,
+        "total_txs": 3506,
+        "class_1_illicit": 80,
+        "class_2_licit": 665,
+        "class_3_unknown": 2761,
+        "labeled_txs": 745,
+        "illicit_pct_of_labeled": 10.74
+      },
+      {
+        "timestep": 20,
+        "total_txs": 4291,
+        "class_1_illicit": 260,
+        "class_2_licit": 640,
+        "class_3_unknown": 3391,
+        "labeled_txs": 900,
+        "illicit_pct_of_labeled": 28.89
+      },
+      {
+        "timestep": 21,
+        "total_txs": 3537,
+        "class_1_illicit": 100,
+        "class_2_licit": 541,
+        "class_3_unknown": 2896,
+        "labeled_txs": 641,
+        "illicit_pct_of_labeled": 15.6
+      },
+      {
+        "timestep": 22,
+        "total_txs": 5894,
+        "class_1_illicit": 158,
+        "class_2_licit": 1605,
+        "class_3_unknown": 4131,
+        "labeled_txs": 1763,
+        "illicit_pct_of_labeled": 8.96
+      },
+      {
+        "timestep": 23,
+        "total_txs": 4165,
+        "class_1_illicit": 53,
+        "class_2_licit": 1134,
+        "class_3_unknown": 2978,
+        "labeled_txs": 1187,
+        "illicit_pct_of_labeled": 4.47
+      },
+      {
+        "timestep": 24,
+        "total_txs": 4592,
+        "class_1_illicit": 137,
+        "class_2_licit": 989,
+        "class_3_unknown": 3466,
+        "labeled_txs": 1126,
+        "illicit_pct_of_labeled": 12.17
+      },
+      {
+        "timestep": 25,
+        "total_txs": 2314,
+        "class_1_illicit": 118,
+        "class_2_licit": 476,
+        "class_3_unknown": 1720,
+        "labeled_txs": 594,
+        "illicit_pct_of_labeled": 19.87
+      },
+      {
+        "timestep": 26,
+        "total_txs": 2523,
+        "class_1_illicit": 96,
+        "class_2_licit": 421,
+        "class_3_unknown": 2006,
+        "labeled_txs": 517,
+        "illicit_pct_of_labeled": 18.57
+      },
+      {
+        "timestep": 27,
+        "total_txs": 1089,
+        "class_1_illicit": 24,
+        "class_2_licit": 182,
+        "class_3_unknown": 883,
+        "labeled_txs": 206,
+        "illicit_pct_of_labeled": 11.65
+      },
+      {
+        "timestep": 28,
+        "total_txs": 1653,
+        "class_1_illicit": 85,
+        "class_2_licit": 199,
+        "class_3_unknown": 1369,
+        "labeled_txs": 284,
+        "illicit_pct_of_labeled": 29.93
+      },
+      {
+        "timestep": 29,
+        "total_txs": 4275,
+        "class_1_illicit": 329,
+        "class_2_licit": 845,
+        "class_3_unknown": 3101,
+        "labeled_txs": 1174,
+        "illicit_pct_of_labeled": 28.02
+      },
+      {
+        "timestep": 30,
+        "total_txs": 2483,
+        "class_1_illicit": 83,
+        "class_2_licit": 441,
+        "class_3_unknown": 1959,
+        "labeled_txs": 524,
+        "illicit_pct_of_labeled": 15.84
+      },
+      {
+        "timestep": 31,
+        "total_txs": 2816,
+        "class_1_illicit": 106,
+        "class_2_licit": 604,
+        "class_3_unknown": 2106,
+        "labeled_txs": 710,
+        "illicit_pct_of_labeled": 14.93
+      },
+      {
+        "timestep": 32,
+        "total_txs": 4525,
+        "class_1_illicit": 342,
+        "class_2_licit": 981,
+        "class_3_unknown": 3202,
+        "labeled_txs": 1323,
+        "illicit_pct_of_labeled": 25.85
+      },
+      {
+        "timestep": 33,
+        "total_txs": 3151,
+        "class_1_illicit": 23,
+        "class_2_licit": 418,
+        "class_3_unknown": 2710,
+        "labeled_txs": 441,
+        "illicit_pct_of_labeled": 5.22
+      },
+      {
+        "timestep": 34,
+        "total_txs": 2486,
+        "class_1_illicit": 37,
+        "class_2_licit": 478,
+        "class_3_unknown": 1971,
+        "labeled_txs": 515,
+        "illicit_pct_of_labeled": 7.18
+      },
+      {
+        "timestep": 35,
+        "total_txs": 5507,
+        "class_1_illicit": 182,
+        "class_2_licit": 1159,
+        "class_3_unknown": 4166,
+        "labeled_txs": 1341,
+        "illicit_pct_of_labeled": 13.57
+      },
+      {
+        "timestep": 36,
+        "total_txs": 6393,
+        "class_1_illicit": 33,
+        "class_2_licit": 1675,
+        "class_3_unknown": 4685,
+        "labeled_txs": 1708,
+        "illicit_pct_of_labeled": 1.93
+      },
+      {
+        "timestep": 37,
+        "total_txs": 3306,
+        "class_1_illicit": 40,
+        "class_2_licit": 458,
+        "class_3_unknown": 2808,
+        "labeled_txs": 498,
+        "illicit_pct_of_labeled": 8.03
+      },
+      {
+        "timestep": 38,
+        "total_txs": 2891,
+        "class_1_illicit": 111,
+        "class_2_licit": 645,
+        "class_3_unknown": 2135,
+        "labeled_txs": 756,
+        "illicit_pct_of_labeled": 14.68
+      },
+      {
+        "timestep": 39,
+        "total_txs": 2760,
+        "class_1_illicit": 81,
+        "class_2_licit": 1102,
+        "class_3_unknown": 1577,
+        "labeled_txs": 1183,
+        "illicit_pct_of_labeled": 6.85
+      },
+      {
+        "timestep": 40,
+        "total_txs": 4481,
+        "class_1_illicit": 112,
+        "class_2_licit": 1099,
+        "class_3_unknown": 3270,
+        "labeled_txs": 1211,
+        "illicit_pct_of_labeled": 9.25
+      },
+      {
+        "timestep": 41,
+        "total_txs": 5342,
+        "class_1_illicit": 116,
+        "class_2_licit": 1016,
+        "class_3_unknown": 4210,
+        "labeled_txs": 1132,
+        "illicit_pct_of_labeled": 10.25
+      },
+      {
+        "timestep": 42,
+        "total_txs": 7140,
+        "class_1_illicit": 239,
+        "class_2_licit": 1915,
+        "class_3_unknown": 4986,
+        "labeled_txs": 2154,
+        "illicit_pct_of_labeled": 11.1
+      },
+      {
+        "timestep": 43,
+        "total_txs": 5063,
+        "class_1_illicit": 24,
+        "class_2_licit": 1346,
+        "class_3_unknown": 3693,
+        "labeled_txs": 1370,
+        "illicit_pct_of_labeled": 1.75
+      },
+      {
+        "timestep": 44,
+        "total_txs": 4975,
+        "class_1_illicit": 24,
+        "class_2_licit": 1567,
+        "class_3_unknown": 3384,
+        "labeled_txs": 1591,
+        "illicit_pct_of_labeled": 1.51
+      },
+      {
+        "timestep": 45,
+        "total_txs": 5598,
+        "class_1_illicit": 5,
+        "class_2_licit": 1216,
+        "class_3_unknown": 4377,
+        "labeled_txs": 1221,
+        "illicit_pct_of_labeled": 0.41
+      },
+      {
+        "timestep": 46,
+        "total_txs": 3519,
+        "class_1_illicit": 2,
+        "class_2_licit": 710,
+        "class_3_unknown": 2807,
+        "labeled_txs": 712,
+        "illicit_pct_of_labeled": 0.28
+      },
+      {
+        "timestep": 47,
+        "total_txs": 5121,
+        "class_1_illicit": 22,
+        "class_2_licit": 824,
+        "class_3_unknown": 4275,
+        "labeled_txs": 846,
+        "illicit_pct_of_labeled": 2.6
+      },
+      {
+        "timestep": 48,
+        "total_txs": 2954,
+        "class_1_illicit": 36,
+        "class_2_licit": 435,
+        "class_3_unknown": 2483,
+        "labeled_txs": 471,
+        "illicit_pct_of_labeled": 7.64
+      },
+      {
+        "timestep": 49,
+        "total_txs": 2454,
+        "class_1_illicit": 56,
+        "class_2_licit": 420,
+        "class_3_unknown": 1978,
+        "labeled_txs": 476,
+        "illicit_pct_of_labeled": 11.76
+      }
+    ]
+  },
+  "cleaning_actions": {
+    "actions_performed": [
+      "Validated raw transaction CSV schemas, dtypes, null counts, duplicate records, and node-edge relational integrity.",
+      "Verified that raw transaction files contain zero malformed rows, zero duplicate rows, zero duplicate txIds, and zero self-loops.",
+      "Confirmed 1-to-1 exact identity and row ordering between txs_features and txs_classes across all 203,769 transactions.",
+      "Identified that exactly 965 transactions have missing values exclusively across the 17 added Elliptic++ Bitcoin domain features.",
+      "Preserved all 203,769 transactions without dropping or modifying records to maintain complete graph edge integrity and prevent loss of legitimate fraud signals.",
+      "Avoided global imputation of missing values to prevent data leakage from test time steps into training splits.",
+      "Materialized validated clean datasets into data/processed/ with identical byte integrity: txs_features_clean.csv, txs_classes_clean.csv, txs_edgelist_clean.csv."
+    ],
+    "rows_removed": 0,
+    "transformations_applied": "None at file level; data copied under validated schema preserving exact numerical precision and graph topology."
+  },
+  "remaining_limitations": [
+    "Actor/wallet files (wallets_features.csv, wallets_classes.csv, AddrAddr_edgelist.csv, AddrTx_edgelist.csv, TxAddr_edgelist.csv) were not present in the downloaded raw directory.",
+    "The 17 Elliptic++ Bitcoin domain features have 965 unobserved values (0.4735% missingness). These must be handled by downstream tree models natively or imputed strictly within training split time steps."
+  ]
+}

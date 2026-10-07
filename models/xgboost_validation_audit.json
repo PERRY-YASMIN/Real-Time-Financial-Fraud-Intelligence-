@@ -1,0 +1,94 @@
+{
+  "audit_timestamp": "2026-10-07T07:47:38.124896+00:00",
+  "audit_version": "1.0",
+  "model_audited": "models/xgboost_baseline.json",
+  "metadata_audited": "models/xgboost_baseline_metadata.json",
+  "split_integrity": {
+    "status": "PASS",
+    "train_timesteps": "1\u201330",
+    "validation_timesteps": "31\u201334",
+    "test_timesteps": "35\u201349 (STRICT HOLDOUT, UNTOUCHED)",
+    "train_row_count": 26905,
+    "validation_row_count": 2989,
+    "test_row_count": 16670,
+    "txid_overlap_train_val": 0,
+    "random_splitting_used": false,
+    "monotonic_time_split": true,
+    "details": "Train (t=1..30) and Validation (t=31..34) are strictly disjoint in both time and transaction IDs. Test set was not loaded."
+  },
+  "target_leakage": {
+    "status": "PASS - NO TARGET LEAKAGE",
+    "label_in_features": false,
+    "txid_in_features": false,
+    "timestep_in_features": false,
+    "target_derived_features_present": false,
+    "max_feature_correlation_with_label_train": {
+      "highest_positive": {
+        "feature": "Aggregate_feature_10",
+        "correlation": 0.194
+      },
+      "highest_negative": {
+        "feature": "Local_feature_53",
+        "correlation": -0.312
+      }
+    },
+    "details": "None of the 182 features encode ground-truth class or label information directly or through target encoding. No feature correlation approaches 1.0."
+  },
+  "temporal_causal_availability": {
+    "status": "VERIFIED WITH DOCUMENTED DATASET CHARACTERISTICS",
+    "cross_timestep_leakage": "NONE (timesteps in Elliptic are self-contained graph snapshots with no cross-timestep edges)",
+    "within_timestep_forward_aggregation": "PRESENT IN UPSTREAM DATASET DESIGN (1-hop forward aggregations in Elliptic look at downstream child spending transactions within the ~3-hour snapshot window; this is retrospective within the snapshot, not real-time mempool broadcast)",
+    "backward_aggregation": "LEGITIMATE (inputs spent by transaction u already exist on chain prior to u's broadcast)"
+  },
+  "aggregate_feature_provenance": {
+    "status": "DOCUMENTED FROM LITERATURE & SPECIFICATIONS",
+    "source_specification": "Weber et al. (2019) KDD / Elliptic dataset official release",
+    "feature_composition": "72 aggregate features represent min, max, mean, std, and correlation coefficients of the 93 local features of 1-hop neighbor transactions.",
+    "labels_used_in_aggregation": false,
+    "target_leakage_in_aggregation": false
+  },
+  "imputation_audit": {
+    "status": "PASS - STRICTLY TRAIN-ONLY",
+    "strategy": "train_only_median_imputation",
+    "source_split": "train (timesteps 1\u201330, labeled supervised subset)",
+    "median_values_count": 17,
+    "validation_fitted": false,
+    "test_fitted": false,
+    "details": "Imputation statistics were computed exclusively on the labeled training set (155 train rows, 40 val rows, 324 test rows imputed) and frozen prior to model fitting."
+  },
+  "model_feature_consistency": {
+    "status": "PASS - 100% CONSISTENT",
+    "feature_count_expected": 182,
+    "feature_count_model": 182,
+    "feature_count_metadata": 182,
+    "feature_names_match": true,
+    "scale_pos_weight": 8.108,
+    "random_state": 42,
+    "threshold_selection_source": "validation_only",
+    "selected_threshold": 0.69
+  },
+  "strong_performance_assessment": {
+    "status": "PLAUSIBLY LEGITIMATE FOR TIMESTEPS 31\u201334 (PRE-DRIFT REGIME)",
+    "metrics": {
+      "pr_auc": 0.9933,
+      "roc_auc": 0.9986,
+      "f1_at_0_69": 0.9735,
+      "precision": 0.9725,
+      "recall": 0.9744
+    },
+    "root_causes": [
+      "1. Pre-drift temporal continuity: In the standard Weber et al. benchmark, timesteps 1\u201334 are all considered part of the stationary pre-shutdown regime. Our validation set (31\u201334) immediately follows training (1\u201330) without any structural disruption.",
+      "2. Rigid illicit transaction templates: In this period, illicit entities (darknet marketplaces) generated highly stereotyped transactions (e.g., single-input sweeps of ~192 bytes, 75% <= 225 bytes, vs licit median of 373 bytes). The model identified 'size' as the top feature (gain=0.1728).",
+      "3. Inherent power of 165 Elliptic features: An experimental verification removing all 17 augmented features showed that the original 165 features ALONE achieve PR-AUC 0.9924, ROC-AUC 0.9984, and F1 0.9773 on timesteps 31\u201334. Thus, high performance is not caused by augmented features or data pipeline flaws.",
+      "4. Expected degradation on later test set: The high validation score should NOT be assumed to hold for test timesteps 35\u201349, where historical dark-market closures induce known concept drift."
+    ]
+  },
+  "final_test_protection": {
+    "final_test_used": false,
+    "test_csv_loaded_in_training": false,
+    "test_csv_loaded_in_validation": false,
+    "test_csv_loaded_in_audit": false,
+    "test_status": "STRICT HOLDOUT - COMPLETELY FROZEN"
+  },
+  "overall_verdict": "SAFE TO PROCEED"
+}
