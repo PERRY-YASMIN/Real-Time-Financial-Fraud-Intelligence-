@@ -7,11 +7,16 @@ __pycache__/
 env/
 venv/
 .venv/
+.pytest_cache/
 
 # Large Datasets
 data/raw/
 data/processed/*.csv
 data/processed/*.parquet
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
 
 # IDE & OS
 .vscode/

@@ -178,6 +178,35 @@ export const StreamProvider: React.FC<{ children: React.ReactNode }> = ({
                 risk_trend: currentTrend.slice(-20),
               };
             });
+
+            // If the transaction is in alert range (risk_score >= 60), ensure alert is reflected immediately in dashboard
+            if (tx.risk_score >= 60) {
+              const alertId = `alert-${tx.id}`;
+              const autoAlert: Alert = {
+                id: alertId,
+                transaction_id: tx.id,
+                risk_score: tx.risk_score,
+                risk_level: tx.risk_level,
+                reasons: tx.evidence || [],
+                recommended_action: tx.recommended_action || (tx.risk_score >= 80 ? "INVESTIGATE" : "REVIEW"),
+              };
+
+              setAlerts((prev) => {
+                if (prev.some((a) => a.id === alertId)) return prev;
+                return [autoAlert, ...prev.slice(0, 49)];
+              });
+
+              setDashboard((prev) => {
+                if (prev.recent_alerts.some((a) => a.id === alertId)) return prev;
+                const isCrit = autoAlert.risk_level === "CRITICAL";
+                return {
+                  ...prev,
+                  active_alerts: prev.active_alerts + 1,
+                  critical_alerts: isCrit ? prev.critical_alerts + 1 : prev.critical_alerts,
+                  recent_alerts: [autoAlert, ...prev.recent_alerts.slice(0, 9)],
+                };
+              });
+            }
           } else if (payload.type === "alert" && payload.alert) {
             const newAlert: Alert = {
               id: payload.alert.id,
@@ -194,6 +223,7 @@ export const StreamProvider: React.FC<{ children: React.ReactNode }> = ({
             });
 
             setDashboard((prev) => {
+              if (prev.recent_alerts.some((a) => a.id === newAlert.id)) return prev;
               const updatedAlerts = [
                 newAlert,
                 ...prev.recent_alerts.filter((a) => a.id !== newAlert.id).slice(0, 9),

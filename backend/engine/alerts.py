@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 
 class AlertManager:
@@ -11,23 +12,64 @@ class AlertManager:
         self,
         transaction_id: str,
         analysis: dict,
-    ) -> dict | None:
+    ) -> Optional[dict]:
         """Create an alert when a transaction requires investigation."""
 
-        risk_score = analysis["risk_score"]
-        risk_level = analysis["risk_level"]
+        risk_score = float(analysis.get("risk_score", 0.0))
+        risk_level = analysis.get("risk_level", "LOW")
+        evidence = analysis.get("evidence", [])
 
-        # Only HIGH and CRITICAL transactions become alerts.
-        if risk_score < 60:
+        # Detect strong risk signals
+        has_ml_illicit = any(
+            e.get("category") == "ML" and "illicit" in e.get("message", "").lower()
+            for e in evidence
+        )
+        has_graph_risk = any(
+            e.get("category") == "GRAPH" for e in evidence
+        )
+        has_temporal_risk = any(
+            e.get("category") == "TEMPORAL" for e in evidence
+        )
+
+        # Trigger alert if:
+        # 1. Standard threshold: risk_score >= 60 (HIGH or CRITICAL)
+        # 2. ML model predicted illicit activity (>= 0.69) with elevated score (>= 35)
+        # 3. Elevated composite risk (>= 40) with multi-category evidence
+        should_alert = (
+            risk_score >= 60.0
+            or has_ml_illicit
+            or (risk_score >= 40.0 and (has_graph_risk or has_temporal_risk))
+        )
+
+        if not should_alert:
             return None
 
+        # Determine appropriate severity level for alert
+        effective_level = risk_level
+        if effective_level in ["LOW", "MEDIUM"]:
+            if risk_score >= 50.0 or has_ml_illicit:
+                effective_level = "HIGH"
+            else:
+                effective_level = "MEDIUM"
+
+        action = analysis.get("recommended_action", "REVIEW")
+        if action in ["MONITOR", "NO_ACTION"] and effective_level in ["HIGH", "CRITICAL"]:
+            action = "INVESTIGATE" if effective_level == "CRITICAL" else "REVIEW"
+
+        alert_id = f"alert-{transaction_id}"
+
+        # If alert already exists, return existing to avoid duplicate entries
+        existing = self.get_alert(alert_id)
+        if existing:
+            return existing
+
         alert = {
-            "id": f"alert-{transaction_id}",
-            "transaction_id": transaction_id,
+            "id": alert_id,
+            "transaction_id": str(transaction_id),
             "risk_score": risk_score,
-            "risk_level": risk_level,
-            "reasons": analysis["evidence"],
-            "recommended_action": analysis["recommended_action"],
+            "risk_level": effective_level,
+            "reasons": evidence,
+            "recommended_action": action,
             "created_at": datetime.now(timezone.utc).isoformat(),
             "status": "OPEN",
         }
@@ -41,7 +83,7 @@ class AlertManager:
 
         return self.alerts
 
-    def get_alert(self, alert_id: str) -> dict | None:
+    def get_alert(self, alert_id: str) -> Optional[dict]:
         """Return a specific alert."""
 
         return next(
@@ -61,3 +103,7 @@ class AlertManager:
             for alert in self.alerts
             if alert["status"] == "OPEN"
         )
+
+
+# Global singleton instance shared across API routes and WebSocket streamer
+alert_manager = AlertManager()

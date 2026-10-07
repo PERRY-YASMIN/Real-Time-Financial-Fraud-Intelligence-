@@ -31,7 +31,7 @@ export const mockAlerts: Alert[] = [
   {
     id: "alert-002",
     transaction_id: "tx-1930",
-    risk_score: 82,
+    risk_score: 74,
     risk_level: "HIGH",
     reasons: [
       {
@@ -39,7 +39,7 @@ export const mockAlerts: Alert[] = [
         message: "Entity has unusually high network connectivity",
       },
     ],
-    recommended_action: "INVESTIGATE",
+    recommended_action: "REVIEW",
   },
 
   {
@@ -79,7 +79,7 @@ export const mockTransactions: Transaction[] = [
     id: "tx-1930",
     time_step: 17,
     amount: 8.7,
-    risk_score: 82,
+    risk_score: 74,
     risk_level: "HIGH",
   },
 ];

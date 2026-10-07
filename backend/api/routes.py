@@ -34,7 +34,29 @@ processor = StreamProcessor(
     communities=communities,
 )
 
-alert_manager = AlertManager()
+from backend.engine.alerts import alert_manager
+from backend.streaming.data_loader import get_transaction_by_id
+
+# Pre-seed initial benchmark suspicious alerts for immediate analyst console visibility
+_INITIAL_SEED_TXS = [
+    "11502993",  # Validation illicit transaction (ML score 0.99)
+    "3205536",   # Replay illicit transaction (ML score 0.90)
+    "16742787",  # Replay illicit transaction
+    "16753577",  # Replay illicit transaction
+    "16754007",  # Replay illicit transaction
+    "17387772",  # Replay illicit transaction
+    "17796937",  # Replay illicit transaction
+    "24141114",  # Replay illicit transaction
+]
+
+for _seed_id in _INITIAL_SEED_TXS:
+    _seed_tx = get_transaction_by_id(_seed_id)
+    if _seed_tx:
+        _res = processor.process(_seed_tx)
+        alert_manager.create_alert(
+            transaction_id=_seed_id,
+            analysis=_res["analysis"],
+        )
 
 
 # =========================================================

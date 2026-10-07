@@ -91,7 +91,7 @@ export default function Dashboard() {
 
       </div>
       {/* Recent Alerts */}
-<RecentAlerts />
+      <RecentAlerts alerts={data.recent_alerts} />
 
     </div>
   );

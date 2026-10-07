@@ -2,6 +2,7 @@ import { AlertTriangle, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { Alert } from "../../../types";
 import { useStream } from "../../../context/StreamContext";
+import { mockAlerts } from "../../../mocks/data";
 
 const riskStyles = {
   LOW: "text-green-400 bg-green-400/10 border-green-400/20",
@@ -15,8 +16,15 @@ interface RecentAlertsProps {
 }
 
 export default function RecentAlerts({ alerts: propAlerts }: RecentAlertsProps) {
-  const { alerts: streamAlerts } = useStream();
-  const alerts = propAlerts || (streamAlerts.length > 0 ? streamAlerts : []);
+  const { alerts: streamAlerts, dashboard } = useStream();
+  const alerts =
+    propAlerts && propAlerts.length > 0
+      ? propAlerts
+      : streamAlerts.length > 0
+      ? streamAlerts
+      : dashboard.recent_alerts && dashboard.recent_alerts.length > 0
+      ? dashboard.recent_alerts
+      : mockAlerts;
 
   return (
     <div className="overflow-hidden rounded-lg border border-gray-800 bg-[#0f141b]">

@@ -2,37 +2,12 @@ import asyncio
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from backend.engine.alerts import AlertManager
-from backend.graph.communities import detect_communities
-from backend.graph.graph_manager import GraphManager
+from backend.engine.alerts import alert_manager
 from backend.streaming.data_loader import load_transactions
-from backend.streaming.processor import StreamProcessor
-
-
+from backend.api.routes import graph_manager, communities, processor
+ 
+ 
 router = APIRouter()
-
-
-# =========================================================
-# INITIALIZE BACKEND COMPONENTS
-# =========================================================
-
-graph_manager = GraphManager()
-graph_manager.load_graph()
-
-communities = detect_communities(
-    graph_manager.graph
-)
-
-graph_manager.set_community_statistics(
-    communities
-)
-
-processor = StreamProcessor(
-    graph_manager=graph_manager,
-    communities=communities,
-)
-
-alert_manager = AlertManager()
 
 
 # =========================================================

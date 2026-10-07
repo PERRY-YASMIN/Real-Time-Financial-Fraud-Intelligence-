@@ -93,7 +93,14 @@ export default function NetworkGraph({ txId, networkData: propData }: NetworkGra
       },
     },
     {
-      selector: "node[risk_score < 40]",
+      selector: "node[risk_score >= 30][risk_score < 60]",
+      style: {
+        "background-color": "#eab308",
+        "border-color": "#facc15",
+      },
+    },
+    {
+      selector: "node[risk_score < 30]",
       style: {
         "background-color": "#16a34a",
         "border-color": "#4ade80",
